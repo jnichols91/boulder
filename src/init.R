@@ -2,14 +2,9 @@ library(tidyverse)
 library(fields)
 library(lubridate)
 
-load("boulderMoWater.rda")
+# make sure src is the working directory
 
-# test 
-#test f 
-
-# next 
-
-#
+load("../data/boulderMoWater.rda")
 
 
 
