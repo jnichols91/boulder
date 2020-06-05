@@ -19,12 +19,19 @@ phosfax.10m <- as_tibble(phosfax_10m) %>%
   select(date, hour, everything())
 
 flow.hrly <- flow.hrly %>% 
-  group_by(date = date(date), hour)
+  group_by(date = date(date), hour) %>% 
+  ungroup()
 mix.liq.hrly <- mix.liq.hrly %>% 
-  group_by(date = date(date), hour) 
+  group_by(date = date(date), hour) %>% 
+  ungroup()
 phosfax.hrly <- phosfax.10m %>% 
   group_by(date = date(date), hour) %>% 
-  summarise(op_conc_mg_p_l_hourly = mean(op_conc_mg_p_l))
+  summarise(op_conc_mg_p_l_hourly = mean(op_conc_mg_p_l, na.rm = TRUE)) %>% 
+  ungroup()
 
+temp <- inner_join(mix.liq.hrly, phosfax.hrly, by=c("date", "hour"))
+phos.data <- inner_join(temp, flow.hrly, by = c("date", "hour"))
+
+save(flow.hrly, phosfax.hrly, mix.liq.hrly, phos.data, file = "../data/phosPrediction.rda")
 
 
