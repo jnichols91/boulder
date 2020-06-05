@@ -14,12 +14,7 @@ load("/Users/haosheng/Desktop/MoWater_Summer_Intern/boulderMoWater.rda")
 #6	phosfax_10m
 #7	total_flow_daily
 
-
-rm(list = list())
-
-
-
-list()view(data)
+rm( list = ls() )
 
 
 view(avg_9_to_10_daily)
@@ -32,12 +27,42 @@ colnames(avg_9_to_10_daily)
 view(avg_9_to_10_daily)
 
 #dosing daily 
-as.numeric()
 
-which(avg_9_to_10_daily$date == "2019-07-01")
+#Ferric rows
+mix.liq.hrly <-  mix.liq.hrly%>% 
+  group_by(date = date(date), hour) %>% 
+  ungroup()
+mixed.liq.daily <- mix.liq.hrly %>% 
+  group_by(date = date(date)) %>% 
+  summarise(op_mg_p_l_daily = mean(op_mg_p_l, na.rm = TRUE),
+            delta_pct_daily = mean(delta_pct, na.rm = TRUE),
+            delta_mg_p_l_daily = mean(detla_mg_p_l, na.rm = TRUE))
+mixed.liq.daily
+
+test <- inner_join(mixed.liq.daily, dosing_daily, by = "date")
+view(test)
+dim(test)
 
 
 
-length(which(dosing_daily$coagulant == "Alum"))
-length(dosing_daily$)
+
+  mix.liq.hrly %>% ggplot(aes(dateofFerric, op_mg_p_l)) %>% 
+  boxplot()
+
+
+#############################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
