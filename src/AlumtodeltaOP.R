@@ -37,13 +37,17 @@ mixed.liq.daily <- mix.liq.hrly %>%
   summarise(op_mg_p_l_daily = mean(op_mg_p_l, na.rm = TRUE),
             delta_pct_daily = mean(delta_pct, na.rm = TRUE),
             delta_mg_p_l_daily = mean(detla_mg_p_l, na.rm = TRUE))
-mixed.liq.daily
 
-test <- inner_join(mixed.liq.daily, dosing_daily, by = "date")
+
+mixed_liq_joined <- inner_join(mixed.liq.daily, dosing_daily, by = "date")
 view(test)
 dim(test)
 
-
+mixed_liq_joined %>% 
+  ggplot(aes(date,op_mg_p_l_daily)) +
+  geom_point(aes(col = coagulant))
+  
+  
 
 
   mix.liq.hrly %>% ggplot(aes(dateofFerric, op_mg_p_l)) %>% 
