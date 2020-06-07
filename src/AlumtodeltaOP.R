@@ -47,11 +47,11 @@ mixed_liq_joined %>%
   ggplot(aes(date,op_mg_p_l_daily)) +
   geom_point(aes(col = coagulant))
   
-  
+mixed_liq_joined %>% 
+  ggplot(aes(date,op_mg_p_l_daily)) +
+  geom_boxplot(aes(col = coagulant))
 
 
-  mix.liq.hrly %>% ggplot(aes(dateofFerric, op_mg_p_l)) %>% 
-  boxplot()
 
 
 #############################
