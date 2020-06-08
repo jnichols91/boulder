@@ -40,7 +40,7 @@ mixed.liq.daily <- mix.liq.hrly %>%
 
 phosfax_10m_daily <- phosfax_10m %>% 
   mutate(hour = hour(date)) %>% 
-  group_by( date = date(date), hour) %>% 
+  group_by( date = date(date),hour) %>% 
   summarise( op_conc_mg_p_l_daily = mean(op_conc_mg_p_l))
 view(phosfax_10m_daily)
 
