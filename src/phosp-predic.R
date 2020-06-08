@@ -8,20 +8,18 @@ library(leaps)
 # make sure src is the current working directory
 
 load("../data/phosPrediction.rda")
-
-del <- c("date", "delta_pct", "detla_mg_p_l", "daft_sub_gpm", "daft_sub_gal", "primary_sludge_gmp_hourly_avg", "twas_flow_gpm_hourly_avg")
+del <- c("hour","delta_pct", "detla_mg_p_l", "daft_sub_gpm", "daft_sub_gal", "primary_sludge_gmp_hourly_avg", "twas_flow_gpm_hourly_avg")
 
 phos.data.clean <- phos.data %>% select(-all_of(del))
 phos.data.clean <- phos.data.clean[15:107,]
 phos.data.clean$centrate_gal[is.na(phos.data.clean$centrate_gal)] <- 0
-phos.data.clean$hour <- as.numeric(phos.data.clean$hour)
 
 set.seed(1)
-k <- 5
+k <- 10
 n <- nrow(phos.data.clean)
 num.features <- length(names(phos.data.clean)) - 1
 
-folds = sample( 1:k, nrow(phos.data.clean), replace=TRUE )
+folds = sample( 1:k, n, replace=TRUE )
 cv.errors = matrix( NA, k, num.features, dimnames = list( NULL,c(1:num.features) ) )
 
 for (j in 1:k){
@@ -41,7 +39,7 @@ number.variables <- which.min(msep)
 
 best.fit <- regsubsets( op_mg_p_l ~., data = phos.data.clean, nvmax = number.variables, method = "forward" )
 best.kfold <- as.matrix(coef( best.fit,id=number.variables ))
-names(best.kfold)[1] <- "value"
+colnames(best.kfold)[1] <- "value"
 
 rownames(best.kfold) <- rownames(best.kfold) %>% str_replace_all("`", "")
 data.kfold <- cbind(phos.data.clean$op_mg_p_l, phos.data.clean %>% select(rownames(best.kfold)[-1]))
