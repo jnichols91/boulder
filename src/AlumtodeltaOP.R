@@ -48,7 +48,7 @@ mixed_liq_joined <- inner_join(mixed.liq.daily, dosing_daily, by = "date")
 
 dosing_phosfax10m_joined <- inner_join(dosing_daily,phosfax_10m_daily, by = "date")
 
-view(dosing_phosfax10m_joined)
+view(mixed_liq_joined)
 
 
 mixed_liq_joined %>% 
