@@ -4,11 +4,12 @@ library(tidyverse)
 library(fields)
 library(lubridate)
 library(leaps)
+library(latex2exp)
 
 # make sure src is the current working directory
 
 load("../data/phosPrediction.rda")
-del <- c("hour","delta_pct", "detla_mg_p_l", "daft_sub_gpm", "daft_sub_gal", "primary_sludge_gmp_hourly_avg", "twas_flow_gpm_hourly_avg")
+del <- c("delta_pct", "detla_mg_p_l", "daft_sub_gpm", "daft_sub_gal", "primary_sludge_gmp_hourly_avg", "twas_flow_gpm_hourly_avg")
 
 phos.data.clean <- phos.data %>% select(-all_of(del))
 phos.data.clean <- phos.data.clean[15:107,]
@@ -50,6 +51,27 @@ resid.kfold <- fit.kfold$residuals
 adjr2.kfold <- summary(fit.kfold)$adj.r.squared
 op_mg_p_l.kfold <- fit.kfold$fitted.values
 
+# plot of residuals vs. fitted 
+pdf(file="../plots/regression/resid_forwd_kfold.pdf", bg="transparent", width=6, height=4.8)
+plot(op_mg_p_l.kfold, resid.kfold, pch=20, cex=0.75,
+     xlab=TeX("Fitted Values"), ylab = TeX("Residuals"))
+text(2.5,1.6, TeX(sprintf("Adj. $R^2 = %.3f", adjr2.kfold)), cex=0.85)
+abline( h = 0, col = 'red', lwd = 1, lty=2 )
+dev.off()
+
+# plot of actual vs. fitted
+pdf(file="../plots/regression/actVSfit_kfold.pdf", bg="transparent", width=6, height=4.8)
+plot(op_mg_p_l.kfold, phos.data.clean$op_mg_p_l, pch=20, cex=0.75,
+     xlab=TeX("Fitted Values"), ylab = TeX("Actual Values"))
+text(2,-0.5, TeX(sprintf("Adj. $R^2 = %.3f", adjr2.kfold)), cex=0.85)
+abline( a=0,b=1, col = 'red', lwd = 1, lty=2 )
+dev.off()
+
+# Q-Q plot
+pdf(file="../plots/regression/qqplot_forwd_kfold.pdf", bg="transparent", width=6, height=4.8)
+qqnorm(resid.kfold, xlab=TeX("Theoretical Quantiles"), ylab=TeX("Standardized Residuals"), main="")
+qqline(resid.kfold, lty=3, col='red')
+dev.off()
 
 
 
