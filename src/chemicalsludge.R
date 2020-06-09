@@ -24,8 +24,8 @@ alumdose <- subset(dosing_daily, coagulant == "Alum")
 ##No dosing
 nodose <- subset(dosing_daily, coagulant == "None")
 ###################################################
-
 #separate and split phosfax
+#s/o to Niko for this bomb code !!
 phosfax.10m <- as_tibble(phosfax_10m) %>% 
   mutate(hour = hour(date)) %>% 
   select(date, hour, everything())
@@ -33,6 +33,14 @@ phosfax.10m <- as_tibble(phosfax_10m) %>%
 phosfax.hrly <- phosfax.10m %>% 
   group_by(date = date(date), hour) %>% 
   summarise(op_conc_mg_p_l_hourly = mean(op_conc_mg_p_l, na.rm = TRUE)) %>% 
+  ungroup()
+
+flow.hrly <- as_tibble(flow_hourly) %>% 
+  mutate(hour = hour(date)) %>% 
+  select(date, hour, everything())
+
+flow.hrly <- flow.hrly %>% 
+  group_by(date = date(date), hour) %>% 
   ungroup()
 ####################################################
 
@@ -80,6 +88,7 @@ plot(ferricsludge$date, ferricsludge$ras_gpm,
      xlab = "Date",
      ylab = "Return Activated Sludge by Gallons Per Minute",
      main = "Ferric Sludge")
+
 mean(ferricsludge$ras_gpm)
 
 #Alum
@@ -90,5 +99,10 @@ plot(alumsludge$date, alumsludge$ras_gpm,
      xlab = "Date",
      ylab = "Return Activated Sludge by Gallons Per Minute",
      main = "Alum Sludge")
+
 mean(alumsludge$ras_gpm)
 #####################################################################
+#Look further into lab_daily for phosphorus amounts
+ferriclabdaily <- lab_daily %>%
+  filter(date >= ymd("2019-08-16")) %>%
+  filter(date <= ymd("2019-09-07")) 
