@@ -28,7 +28,7 @@ lab_daily %>% ggplot(aes(date,))
 
 view(avg_9_to_10_daily)
 
-
+# mix.liq graphs 
 mix.liq.hrly <-  mix.liq.hrly%>% 
   group_by(date = date(date), hour) %>% 
   ungroup()
@@ -37,7 +37,7 @@ mixed.liq.daily <- mix.liq.hrly %>%
   summarise(op_mg_p_l_daily = mean(op_mg_p_l, na.rm = TRUE),
             delta_pct_daily = mean(delta_pct, na.rm = TRUE),
             delta_mg_p_l_daily = mean(detla_mg_p_l, na.rm = TRUE))
-
+# phosfax 
 phosfax_10m_daily <- phosfax_10m %>% 
   mutate(hour = hour(date)) %>% 
   group_by( date = date(date),hour) %>% 
@@ -74,16 +74,16 @@ dosing_phosfax10m_joined %>%
 #############################
 
 
+view(flow_hourly)
+flow_daily<- flow_hourly %>% group_by(date = date(date)) %>% 
+  summarise(influent_mgd_avg_daily = mean(influent_mgd_hourly_avg, na.rm = TRUE),
+            primary_sludge_gmp_avg_daily = mean(primary_sludge_gmp_hourly_avg,na.rm = TRUE))
 
 
+test1_lab_daily<- lab_daily %>% group_by(date = date(date)) %>% 
+  summarise(aq_composite_abi_op_mg_op_l_daily = mean(aq_composite_abi_op_mg_op_l,naN.rm = TRUE))
 
-
-
-
-
-
-
-
+inner_join(dosing_daily,test1_lab_daily, by = "date")
 
 
 
