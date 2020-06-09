@@ -72,9 +72,28 @@ dosing_phosfax10m_joined %>%
   geom_density(aes(op_conc_mg_p_l_daily))
   
 #############################
+# ferric data
+ferric_dosing_daily<- dosing_daily %>% filter(coagulant == "Ferric")
 
 
-view(flow_hourly)
+
+# alum data 
+alum_dosing_daily<- dosing_daily %>% filter(coagulant == "Alum")
+view(alum_dosing_daily)
+#### box plot for flow gal_day of alum
+boxplot(alum_dosing_daily[,3])
+view(alum_dosing_daily %>% filter(flow_gal_day<=437))
+####
+boxplot(alum_dosing_daily[,4])
+min(alum_dosing_daily$flow_avg_ppmv)
+inner_join(alum_dosing_daily,mixed.liq.daily, by = "date")
+
+view(alum_dosing_daily)
+
+alum_phosfax_10m<- phosfax_10m_daily %>% filter(date >= ymd("2019-10-21")&& date <= ymd("2019-12-15"))
+
+view(phosfax_10m_daily)
+
 flow_daily<- flow_hourly %>% group_by(date = date(date)) %>% 
   summarise(influent_mgd_avg_daily = mean(influent_mgd_hourly_avg, na.rm = TRUE),
             primary_sludge_gmp_avg_daily = mean(primary_sludge_gmp_hourly_avg,na.rm = TRUE))
@@ -84,6 +103,13 @@ test1_lab_daily<- lab_daily %>% group_by(date = date(date)) %>%
   summarise(aq_composite_abi_op_mg_op_l_daily = mean(aq_composite_abi_op_mg_op_l,naN.rm = TRUE))
 
 inner_join(dosing_daily,test1_lab_daily, by = "date")
+
+
+
+##################################### EDA
+
+boxplot(mixed.liq.daily)
+
 
 
 
