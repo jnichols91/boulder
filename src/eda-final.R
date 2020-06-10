@@ -89,6 +89,15 @@ alum_melt6 <- melt(alum_data[,c(1,21)],id.vars='date', measure.vars=colnames(alu
 alum_melt7 <- melt(alum_data[,c(1,9,11,13)],id.vars='date', measure.vars=colnames(alum_data[,c(1,9,11,13)])[-1])
 alum_melt8 <- melt(alum_data[,c(1,16:17)],id.vars='date', measure.vars=colnames(alum_data[,c(1,16:17)])[-1])
 
+ferr_melt1 <- melt(ferr_data[,c(1,3:4)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,3:4)])[-1])
+ferr_melt2 <- melt(ferr_data[,c(1,5:6,10,19:20,22)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,5:6,10,19:20,22)])[-1])
+ferr_melt3 <- melt(ferr_data[,c(1,7:8,12)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,7:8,12)])[-1])
+ferr_melt4 <- melt(ferr_data[,c(1,14:15)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,14:15)])[-1])
+ferr_melt5 <- melt(ferr_data[,c(1,18)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,18)])[-1])
+ferr_melt6 <- melt(ferr_data[,c(1,21)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,21)])[-1])
+ferr_melt7 <- melt(ferr_data[,c(1,9,11,13)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,9,11,13)])[-1])
+ferr_melt8 <- melt(ferr_data[,c(1,16:17)],id.vars='date', measure.vars=colnames(ferr_data[,c(1,16:17)])[-1])
+
 # 
 
 ggplot(alum_melt1) +
