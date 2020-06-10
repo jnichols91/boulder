@@ -4,6 +4,8 @@ library(tidyverse)
 library(fields)
 library(lubridate)
 library(latex2exp)
+library(reshape2)
+
 
 # make sure src is the current working directory
 
@@ -65,8 +67,65 @@ final_data$mlws_flow_gpm[7:18]
 
 # remove? fill with average, moving average? 
 
+ferr_data %>% ggplot() + 
+  geom_point(aes(date, op_mg_p_l), col = "blue") + 
+  geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red")
+
+alum_data %>% ggplot() + 
+  geom_point(aes(date, op_mg_p_l), col = "blue") + 
+  geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red")
+
+# shows linear relationship shifted from effluent being less due to dosing
+final_data %>% ggplot() + 
+  geom_point(aes(op_mg_p_l, op_conc_mg_p_l_hourly))
 
 
+alum_melt1 <- melt(alum_data[,c(1,3:4)],id.vars='date', measure.vars=colnames(alum_data[,c(1,3:4)])[-1])
+alum_melt2 <- melt(alum_data[,c(1,5:6,10,19:20,22)],id.vars='date', measure.vars=colnames(alum_data[,c(1,5:6,10,19:20,22)])[-1])
+alum_melt3 <- melt(alum_data[,c(1,7:8,12)],id.vars='date', measure.vars=colnames(alum_data[,c(1,7:8,12)])[-1])
+alum_melt4 <- melt(alum_data[,c(1,14:15)],id.vars='date', measure.vars=colnames(alum_data[,c(1,14:15)])[-1])
+alum_melt5 <- melt(alum_data[,c(1,18)],id.vars='date', measure.vars=colnames(alum_data[,c(1,18)])[-1])
+alum_melt6 <- melt(alum_data[,c(1,21)],id.vars='date', measure.vars=colnames(alum_data[,c(1,21)])[-1])
+alum_melt7 <- melt(alum_data[,c(1,9,11,13)],id.vars='date', measure.vars=colnames(alum_data[,c(1,9,11,13)])[-1])
+alum_melt8 <- melt(alum_data[,c(1,16:17)],id.vars='date', measure.vars=colnames(alum_data[,c(1,16:17)])[-1])
+
+# 
+
+ggplot(alum_melt1) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+#
+
+ggplot(alum_melt2) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# 
+
+ggplot(alum_melt3) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# 
+
+ggplot(alum_melt4) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# outlier in melt 5. determine how to approach and then replot
+
+ggplot(alum_melt5) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# 
+
+ggplot(alum_melt6) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# consider removing centrate_gal
+
+ggplot(alum_melt7) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+ggplot(alum_melt8) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
 
 
 
