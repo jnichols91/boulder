@@ -136,5 +136,50 @@ ggplot(alum_melt7) +
 ggplot(alum_melt8) +
   geom_boxplot(aes(x=date, y=value, color=variable))
 
+######### ferric box plot
+
+# 
+
+ggplot(ferr_melt1) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+#
+
+ggplot(ferr_melt2) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# Warning message:Removed 5 rows containing non-finite values (stat_boxplot). 
+ggplot(ferr_melt3) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# Warning message:Removed 14 rows containing non-finite values (stat_boxplot).
+
+ggplot(ferr_melt4) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# outlier in melt 5. Removed 5 rows containing non-finite values (stat_boxplot). 
+
+ggplot(ferr_melt5) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# 
+ggplot(ferr_melt6) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+# Warning message:Removed 12 rows containing non-finite values (stat_boxplot). 
+
+ggplot(ferr_melt7) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+ggplot(ferr_melt8) +
+  geom_boxplot(aes(x=date, y=value, color=variable))
+
+
+
+
+
+
+
+
+
 
 

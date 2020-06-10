@@ -19,8 +19,6 @@ alum <- dosing_daily %>%
   filter(coagulant == "Alum") 
 alum<-alum[-142,]
 
-
-
 ferric <- dosing_daily %>% 
   filter(coagulant == "Ferric")
 view(ferric)
@@ -30,7 +28,6 @@ view(alum)
 #####flow gal day
 plot(ferric_none$date,ferric_none$flow_gal_day)
 plot(alum_none$date,alum_none$flow_gal_day)
-
 boxplot(ferric_none$flow_gal_day)
 ####flow_avg_ppmv
 plot(ferric_none$date,ferric_none$flow_avg_ppmv)
@@ -53,10 +50,11 @@ test<- alum%>% filter(salt_mass_kg_day<1100)
 boxplot(test$salt_mass_kg_day)
 #### mols of metal ferric
 boxplot(ferric_none$mols_of_metal_kmol_day)
-plot(ferric_none$mols_of_metal_kmol_day)
+plot(ferric_none$date,ferric_none$mols_of_metal_kmol_day)
 #### mols of metal alum
 boxplot(alum$mols_of_metal_kmol_day)
 plot(alum$date,alum$mols_of_metal_kmol_day)
+
 
 
 
