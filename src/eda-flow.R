@@ -109,8 +109,7 @@ boxplot(ferric$twas_flow_gal)
 #plot(ferric$date, ferric$influent_mgd_hourly_avg)
 #plot(ferric$date, ferric$primary_sludge_gal)
 #plot(ferric$date, ferric$abi_mgd)
-
-plot(ferric$date, ferric$thickened_sludge_gal)
+#plot(ferric$date, ferric$thickened_sludge_gal)
 #plot(ferric$date, ferric$influent_mgd_daily_avg)
 #plot(ferric$date, ferric$primary_sludge_gmp_daily_avg)
 #plot(ferric$date, ferric$abi_mgd)
@@ -120,12 +119,10 @@ ferric %>%
   filter(effluent_mgd < 5)
 #why is there a dip in the effluent millions of gallons daily from hours 7-9 on 2019-09-25 
 
-plot(ferric$date, ferric$primary_sludge_gmp_hourly_avg)
-
+#plot(ferric$date, ferric$primary_sludge_gmp_hourly_avg)
 #plot(ferric$date, ferric$thickened_sludge_gpm) 
 
 plot(ferric$date, ferric$gvt_o_f_gpm)
-
 ferric %>% 
   filter(gvt_o_f_gpm < 0)
 #why is there a large dip in gvt from hours 11-13 on 2019-09-10
@@ -137,13 +134,12 @@ ferric %>%
   filter(centrate_gal > 100000)
 #Why is there a spike in centrate gal from hours 15-24 on 2019-09-07
 
-plot(ferric$date, ferric$daft_sub_gpm)
+#plot(ferric$date, ferric$daft_sub_gpm)
 #plot(ferric$date, ferric$ras_gpm)
 #plot(ferric$date, ferric$mlws_flow_gpm)
-plot(ferric$date, ferric$twas_flow_gpm_hourly_avg)
-plot(ferric$date, ferric$twas_flow_gpm_daily_avg)
-
-plot(ferric$date, ferric$ras_gpm)
+#plot(ferric$date, ferric$twas_flow_gpm_hourly_avg)
+#plot(ferric$date, ferric$twas_flow_gpm_daily_avg)
+#plot(ferric$date, ferric$ras_gpm)
 
 ferricphos <- phosfax_10m %>%
   filter(date(date) >= ymd("2019-08-15")) %>%
@@ -152,7 +148,9 @@ ferricphos <- phosfax_10m %>%
 boxplot(ferricphos$op_conc_mg_p_l)
 
 ferricphos %>%
-  filter(op_conc_mg_p_l > 4)
+  filter(op_conc_mg_p_l > 6)
+#Outliers in hour 21 on 2019-09-21
+#Should we be alarmed by this point b/c it's not actually apart of the ferric dosing data
 
 plot(ferricphos$date, ferricphos$op_conc_mg_p_l,
      cex = .25,
@@ -195,8 +193,11 @@ boxplot(alum$twas_flow_gpm_daily_avg)
 boxplot(alum$twas_flow_gal)
 
 
-plot(alum$date, alum$influent_mgd_hourly_avg)
-#plot(alum$date, alum$primary_sludge_gal)
+#plot(alum$date, alum$influent_mgd_hourly_avg)
+plot(alum$date, alum$primary_sludge_gal)
+which.max(alum$primary_sludge_gal)
+#There is a large jump in the data on 2019-12-07
+
 plot(alum$date, alum$abi_mgd)
 
 plot(alum$date, alum$thickened_sludge_gal)
@@ -216,5 +217,10 @@ plot(alum$date, alum$twas_flow_gpm_daily_avg)
 
 ########################################################
 
+final_data %>% 
+  ggplot(aes(mlws_flow_gpm, ras_gpm)) +
+  geom_point(aes(color = coagulant)) +
+  xlab("Mixed Liquor Waste Sludge") +
+  ylab("Return Activated Sludge") 
 
 
