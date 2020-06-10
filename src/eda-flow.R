@@ -81,6 +81,140 @@ alum <- phos.data.clean %>%
 
 plot(alum$date, alum$op_mg_p_l)
 ts.plot(alum$op_mg_p_l)
-###############################################
- 
-test <- inner_join(phos.data.clean, dosing_daily[,1:2], by = c("date"))
+####################################################
+ferric <- flow_hourly %>%
+  filter(date(date) >= ymd("2019-08-15")) %>%
+  filter(date(date) <= ymd("2019-10-20"))
+
+#boxplot(ferric$influent_mgd_hourly_avg)
+#boxplot(ferric$influent_mgd_daily_avg)
+#boxplot(ferric$primary_sludge_gal)
+#boxplot(ferric$thickened_sludge_gal)
+#boxplot(ferric$abi_mgd)
+#boxplot(ferric$daft_sub_gal)
+
+boxplot(ferric$effluent_mgd)
+boxplot(ferric$primary_sludge_gmp_hourly_avg)
+boxplot(ferric$primary_sludge_gmp_daily_avg)
+boxplot(ferric$thickened_sludge_gpm)
+boxplot(ferric$gvt_o_f_gpm)
+boxplot(ferric$centrate_gal)
+boxplot(ferric$daft_sub_gpm)
+boxplot(ferric$ras_gpm)
+boxplot(ferric$mlws_flow_gpm)
+boxplot(ferric$twas_flow_gpm_hourly_avg)
+boxplot(ferric$twas_flow_gpm_daily_avg)
+boxplot(ferric$twas_flow_gal)
+
+#plot(ferric$date, ferric$influent_mgd_hourly_avg)
+#plot(ferric$date, ferric$primary_sludge_gal)
+#plot(ferric$date, ferric$abi_mgd)
+
+plot(ferric$date, ferric$thickened_sludge_gal)
+#plot(ferric$date, ferric$influent_mgd_daily_avg)
+#plot(ferric$date, ferric$primary_sludge_gmp_daily_avg)
+#plot(ferric$date, ferric$abi_mgd)
+plot(ferric$date, ferric$effluent_mgd)
+
+ferric %>%
+  filter(effluent_mgd < 5)
+#why is there a dip in the effluent millions of gallons daily from hours 7-9 on 2019-09-25 
+
+plot(ferric$date, ferric$primary_sludge_gmp_hourly_avg)
+
+#plot(ferric$date, ferric$thickened_sludge_gpm) 
+
+plot(ferric$date, ferric$gvt_o_f_gpm)
+
+ferric %>% 
+  filter(gvt_o_f_gpm < 0)
+#why is there a large dip in gvt from hours 11-13 on 2019-09-10
+#what is gvt?
+
+plot(ferric$date, ferric$centrate_gal)
+
+ferric %>% 
+  filter(centrate_gal > 100000)
+#Why is there a spike in centrate gal from hours 15-24 on 2019-09-07
+
+plot(ferric$date, ferric$daft_sub_gpm)
+#plot(ferric$date, ferric$ras_gpm)
+#plot(ferric$date, ferric$mlws_flow_gpm)
+plot(ferric$date, ferric$twas_flow_gpm_hourly_avg)
+plot(ferric$date, ferric$twas_flow_gpm_daily_avg)
+
+plot(ferric$date, ferric$ras_gpm)
+
+ferricphos <- phosfax_10m %>%
+  filter(date(date) >= ymd("2019-08-15")) %>%
+  filter(date(date) <= ymd("2019-10-20")) 
+
+boxplot(ferricphos$op_conc_mg_p_l)
+
+ferricphos %>%
+  filter(op_conc_mg_p_l > 4)
+
+plot(ferricphos$date, ferricphos$op_conc_mg_p_l,
+     cex = .25,
+     main = "Ferric effluent OP")
+
+######################################################
+alum <- flow_hourly %>%
+  filter(date(date) >= ymd("2019-10-21")) %>%
+  filter(date(date) <= ymd("2020-01-14"))
+
+alumphos <- phosfax_10m %>%
+  filter(date >= ymd("2019-10-21")) %>%
+  filter(date <= ymd("2020-01-14"))
+
+plot(alumphos$date, alumphos$op_conc_mg_p_l,
+     cex = .25,
+     main = "Alum effluent OP",
+     ylim = c(0,4))
+
+#No Outliers
+#boxplot(alum$influent_mgd_hourly_avg)
+#boxplot(alum$influent_mgd_daily_avg)
+#boxplot(alum$primary_sludge_gal)
+#boxplot(alum$abi_mgd)
+#boxplot(alum$effluent_mgd)
+#boxplot(alum$primary_sludge_gmp_daily_avg)
+
+#outliers
+boxplot(alum$thickened_sludge_gal)
+boxplot(alum$primary_sludge_gmp_hourly_avg)
+boxplot(alum$thickened_sludge_gpm)
+boxplot(alum$gvt_o_f_gpm)
+boxplot(alum$centrate_gal)
+boxplot(alum$daft_sub_gpm)
+boxplot(alum$daft_sub_gal)
+boxplot(alum$ras_gpm)
+boxplot(alum$mlws_flow_gpm)
+boxplot(alum$twas_flow_gpm_hourly_avg)
+boxplot(alum$twas_flow_gpm_daily_avg)
+boxplot(alum$twas_flow_gal)
+
+
+plot(alum$date, alum$influent_mgd_hourly_avg)
+#plot(alum$date, alum$primary_sludge_gal)
+plot(alum$date, alum$abi_mgd)
+
+plot(alum$date, alum$thickened_sludge_gal)
+plot(alum$date, alum$influent_mgd_daily_avg)
+plot(alum$date, alum$primary_sludge_gmp_daily_avg)
+plot(alum$date, alum$abi_mgd)
+plot(alum$date, alum$effluent_mgd)
+plot(alum$date, alum$primary_sludge_gmp_hourly_avg)
+plot(alum$date, alum$thickened_sludge_gpm)
+plot(alum$date, alum$gvt_o_f_gpm)
+plot(alum$date, alum$centrate_gal)
+plot(alum$date, alum$daft_sub_gpm)
+plot(alum$date, alum$ras_gpm)
+plot(alum$date, alum$mlws_flow_gpm)
+plot(alum$date, alum$twas_flow_gpm_hourly_avg)
+plot(alum$date, alum$twas_flow_gpm_daily_avg)
+
+########################################################
+
+
+
