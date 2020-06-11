@@ -29,7 +29,8 @@ header-includes:
   - \fancyhead[LH]{City of Boulder}
   - \fancyhead[CH]{Exploratory Data Analysis}
   - \fancyhead[RH]{Justin, Arlyn, and Ocean}
-  - \fancyfoot[CF]{\thepage\ of \pageref{LastPage}}
+  - \fancyfoot[RF]{\thepage\ of \pageref{LastPage}}
+  - \fancyfoot[CF]{}
   - \setlength{\headheight}{13pt}
   - \lstset{language=R, basicstyle=\small\ttfamily, numbersep=5pt,backgroundcolor=\color{white},showspaces=false,showstringspaces=false,showtabs=false,mathescape=false, escapeinside={(*@}{@*)},rulecolor=\color{black}, tabsize=2,captionpos=b,breaklines=true,breakatwhitespace=false,keywordstyle=\textcolor{RoyalBlue}, commentstyle=\textcolor{YellowGreen},stringstyle=\textcolor{ForestGreen}} 
   - \usepackage[many,theorems]{tcolorbox}
@@ -92,7 +93,7 @@ load("../data/boulderMoWater.rda")
     geom_point(aes(date, op_conc_mg_p_l_hourly)) + 
     labs(title = "Alum OP Hourly",
          x = "Date",
-         y = "Hourly Ortho-phosphate") + 
+         y = "Hourly Ortho-phosphate (mg/L)") + 
     theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 8))
@@ -120,16 +121,17 @@ load("../data/boulderMoWater.rda")
 ```
 
 ```{r}
-  ts.plot(ferr_data$op_conc_mg_p_l_hourly)
-  ferr_data %>% ggplot() + 
+  p1 <- ferr_data %>% ggplot() + 
     geom_point(aes(date, op_conc_mg_p_l_hourly)) + 
     labs(title = "Ferric OP Hourly",
          x = "Date",
          y = "Hourly Ortho-phosphate (mg/L)") + 
-    theme(plot.title = element_text(face="bold"))
+    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 8))
 ```
 
-```{r}
+```{r, fig.height = 3}
   ferrphos <- phosfax_10m %>%
     filter(date >= ymd("2019-08-15")) %>%
     filter(date <= ymd("2019-09-07"))
@@ -138,26 +140,37 @@ load("../data/boulderMoWater.rda")
                        xend = as.POSIXct('2019-09-02 10:00:00'))
   
   #### thursday plot 2
-  ferrphos %>% ggplot() + 
+  p2 <- ferrphos %>% ggplot() + 
     geom_point(aes(date, op_conc_mg_p_l), size=1.25) + 
     labs(title = "Ferric Effluent OP 10-minute Intervals",
          x = "Date",
          y = "Ortho-phosphate (mg/L)") + 
     geom_rect(data = rects2, aes(xmin = xstart, xmax = xend, 
                                 ymin = -Inf, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
-    theme(plot.title = element_text(face="bold"))
+    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 8))
+  
+  grid.arrange(p1, p2, ncol = 2)
 ```
 
 
-```{r}
-  par(mfrow = c(1,2))
-  ferr_data %>% ggplot() + 
+```{r, fig.height = 3}
+  p1 <- ferr_data %>% ggplot() + 
     geom_point(aes(date, op_mg_p_l), col = "blue") + 
-    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red")
+    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red") + 
+    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 8))
   
-  alum_data %>% ggplot() + 
+  p2 <- alum_data %>% ggplot() + 
     geom_point(aes(date, op_mg_p_l), col = "blue") + 
-    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red")
+    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red") + 
+    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 8))
+  
+  grid.arrange(p1, p2, ncol = 2)
 ```
 
 
@@ -181,82 +194,190 @@ load("../data/boulderMoWater.rda")
   ferr_melt4 <- melt(alum_data[,c(6,11,15)], id.vars = "hour")
   ferr_melt5 <- melt(alum_data[,c(3:4,15)], id.vars = "hour")
   ferr_melt6 <- melt(alum_data[,c(5,7,12,14,15)], id.vars = "hour")
-  
-  ggplot(alum_melt1) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(alum_melt2) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(alum_melt3) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(alum_melt4) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(alum_melt5) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(alum_melt6) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  
-  ggplot(ferr_melt1) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(ferr_melt2) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(ferr_melt3) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(ferr_melt4) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(ferr_melt5) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
-  ggplot(ferr_melt6) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank())
+  hours <- c("7" = "Hour 7", "8" = "Hour 8", "9" = "Hour 9", "10" = "Hour 10", "11" = "Hour 11", "12" = "Hour 12",
+             "13" = "Hour 13", "14" = "Hour 14","15" = "Hour 15","16" = "Hour 16","17" = "Hour 17","18" = "Hour 18")
 ```
 
+```{r}
+  ggplot(alum_melt1) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(alum_melt2) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(alum_melt3) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(alum_melt4) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(alum_melt5) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(alum_melt6) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(ferr_melt1) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(ferr_melt2) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(ferr_melt3) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(ferr_melt4) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(ferr_melt5) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
+```{r}
+  ggplot(ferr_melt6) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank(),
+          legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8))
+```
+\newpage
 ```{r}
   ferr_diff_pct <- (ferr_data$op_mg_p_l - ferr_data$op_conc_mg_p_l_hourly)/ferr_data$op_mg_p_l * 100
   alum_diff_pct <- (alum_data$op_mg_p_l - alum_data$op_conc_mg_p_l_hourly)/alum_data$op_mg_p_l * 100
