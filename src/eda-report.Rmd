@@ -186,7 +186,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     labs(title = "Alum OP Concentration at Dosing",
          x = "Date",
          y = "Hourly OP (mg/L)") +
-    scale_color_viridis(discrete = TRUE, name = "Location", labels = c("Dosing Station", "Effluent")) +
+    scale_color_brewer(palette = "Dark2", name = "Location", labels = c("Dosing Station", "Effluent")) +
     theme(legend.title = element_text(size = 8),
           legend.text = element_text(size = 7),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
