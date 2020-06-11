@@ -26,10 +26,10 @@ header-includes:
   - \definecolor{ForestGreen}{rgb}{0.13, 0.55, 0.13}
   - \definecolor{RoyalBlue}{rgb}{0.25, 0.41, 0.88}
   - \definecolor{YellowGreen}{rgb}{0.6, 0.8, 0.2}
-  - \fancyhead{}
-  - \fancyhead[LH]{\text{Due:} March \nth{6}, 2020}
-  - \fancyhead[CH]{Lecture 16 Assignment}
-  - \fancyhead[RH]{\thepage\ of \pageref{LastPage}}
+  - \fancyhead[LH]{City of Boulder}
+  - \fancyhead[CH]{Exploratory Data Analysis}
+  - \fancyhead[RH]{Justin, Arlyn, and Ocean}
+  - \fancyfoot[CF]{\thepage\ of \pageref{LastPage}}
   - \setlength{\headheight}{13pt}
   - \lstset{language=R, basicstyle=\small\ttfamily, numbersep=5pt,backgroundcolor=\color{white},showspaces=false,showstringspaces=false,showtabs=false,mathescape=false, escapeinside={(*@}{@*)},rulecolor=\color{black}, tabsize=2,captionpos=b,breaklines=true,breakatwhitespace=false,keywordstyle=\textcolor{RoyalBlue}, commentstyle=\textcolor{YellowGreen},stringstyle=\textcolor{ForestGreen}} 
   - \usepackage[many,theorems]{tcolorbox}
@@ -40,10 +40,21 @@ header-includes:
 
 ```{r setup, include=FALSE}
 #knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table,dvipsnames]{xcolor}', x, fixed = TRUE)})
-knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, fig.height = 7, fig.width = 11)
+knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = FALSE)
 setwd("~/Desktop/MoWater/boulder/src")
+rm( list = ls() )
+
 library(tidyverse)
-library(dplyr)
+library(fields)
+library(lubridate)
+library(latex2exp)
+library(reshape2)
+library(gridExtra)
+
+# make sure src is the current working directory
+
+load("../data/final-data.rda")
+load("../data/boulderMoWater.rda")
 ```
 
 \begin{titlepage}
@@ -51,16 +62,17 @@ library(dplyr)
     \begin{doublespace}
         \centering
         \hrulefill\\[0.25cm]
-        {\Large City of Boulder}\\
-        {\large Exploratory Data Analysis}\\
+        {\Huge City of Boulder}\\
+        {\Large Exploratory Data Analysis}\\
         \hrulefill
         \vfill
-        {\large Justin Nichols, }
+        \includegraphics[width=\linewidth,height=\textheight,keepaspectratio]{"../images/group_photo.png"}\\
+        {\large \hfill Justin Nichols \qquad \qquad \qquad \qquad  Arlyn Alcid \qquad \qquad \qquad \qquad Ocean Wave \hfill}
         \vfill
-        {\begin{singlespace}\footnotesize
-            \textbf{Abstract}\\
-               \lipsum[54]
-        \end{singlespace}}
+        \includegraphics[width=0.2\linewidth,height=\textheight,keepaspectratio]{"../images/mowater.png"}\hfill
+        \includegraphics[width=0.10\linewidth,height=\textheight,keepaspectratio]{"../images/bu.png"}\hfill
+        \includegraphics[width=0.15\linewidth,height=\textheight,keepaspectratio]{"../images/mines.png"}\hfill
+        \includegraphics[width=0.15\linewidth,height=\textheight,keepaspectratio]{"../images/nsf.png"}
     \end{doublespace}
 \end{titlepage}
 
@@ -69,4 +81,192 @@ library(dplyr)
 \restoregeometry
 \pagestyle{fancy}
 
-\footnotesize
+
+
+```{r}
+  table(final_data$coagulant)
+```
+
+```{r}
+  p1 <- alum_data %>% ggplot() + 
+    geom_point(aes(date, op_conc_mg_p_l_hourly)) + 
+    labs(title = "Alum OP Hourly",
+         x = "Date",
+         y = "Hourly Ortho-phosphate") + 
+    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 8))
+```
+
+```{r, fig.height = 3}
+  alumphos <- phosfax_10m %>% # phosfax only alum coagulant every 10 minutes 
+    filter(date >= ymd("2019-10-22")) %>%
+    filter(date <= ymd("2019-12-15"))
+
+  rects1 <- data.frame(xstart = as.POSIXct('2019-11-06 15:00:00'), 
+                    xend = as.POSIXct('2019-12-01 00:00:00'))
+####### thursday plot 1
+  p2 <- alumphos %>% ggplot() + 
+    geom_point(aes(date, op_conc_mg_p_l), size=1.25) + 
+    labs(title = "Alum Effluent OP 10-minute Intervals",
+         x = "Date",
+         y = "Ortho-phosphate (mg/L)") + 
+    geom_rect(data = rects1, aes(xmin = xstart, xmax = xend, 
+                                ymin = -Inf, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
+    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 8))
+  grid.arrange(p1, p2, ncol = 2)
+```
+
+```{r}
+  ts.plot(ferr_data$op_conc_mg_p_l_hourly)
+  ferr_data %>% ggplot() + 
+    geom_point(aes(date, op_conc_mg_p_l_hourly)) + 
+    labs(title = "Ferric OP Hourly",
+         x = "Date",
+         y = "Hourly Ortho-phosphate (mg/L)") + 
+    theme(plot.title = element_text(face="bold"))
+```
+
+```{r}
+  ferrphos <- phosfax_10m %>%
+    filter(date >= ymd("2019-08-15")) %>%
+    filter(date <= ymd("2019-09-07"))
+  
+  rects2 <- data.frame(xstart = as.POSIXct('2019-08-30 15:00:00'), 
+                       xend = as.POSIXct('2019-09-02 10:00:00'))
+  
+  #### thursday plot 2
+  ferrphos %>% ggplot() + 
+    geom_point(aes(date, op_conc_mg_p_l), size=1.25) + 
+    labs(title = "Ferric Effluent OP 10-minute Intervals",
+         x = "Date",
+         y = "Ortho-phosphate (mg/L)") + 
+    geom_rect(data = rects2, aes(xmin = xstart, xmax = xend, 
+                                ymin = -Inf, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
+    theme(plot.title = element_text(face="bold"))
+```
+
+
+```{r}
+  par(mfrow = c(1,2))
+  ferr_data %>% ggplot() + 
+    geom_point(aes(date, op_mg_p_l), col = "blue") + 
+    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red")
+  
+  alum_data %>% ggplot() + 
+    geom_point(aes(date, op_mg_p_l), col = "blue") + 
+    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red")
+```
+
+
+```{r}
+  final_data %>% ggplot() + 
+    geom_point(aes(op_mg_p_l, op_conc_mg_p_l_hourly))
+  
+  ferr_data <- ferr_data %>% mutate(hour = hour(date))
+  alum_data <- alum_data %>% mutate(hour = hour(date))
+  
+  alum_melt1 <- melt(alum_data[,c(8,15)], id.vars = "hour")
+  alum_melt2 <- melt(alum_data[,c(13,15)], id.vars = "hour")
+  alum_melt3 <- melt(alum_data[,c(9:10,15)], id.vars = "hour")
+  alum_melt4 <- melt(alum_data[,c(6,11,15)], id.vars = "hour")
+  alum_melt5 <- melt(alum_data[,c(3:4,15)], id.vars = "hour")
+  alum_melt6 <- melt(alum_data[,c(5,7,12,14,15)], id.vars = "hour")
+  
+  ferr_melt1 <- melt(alum_data[,c(8,15)], id.vars = "hour")
+  ferr_melt2 <- melt(alum_data[,c(13,15)], id.vars = "hour")
+  ferr_melt3 <- melt(alum_data[,c(9:10,15)], id.vars = "hour")
+  ferr_melt4 <- melt(alum_data[,c(6,11,15)], id.vars = "hour")
+  ferr_melt5 <- melt(alum_data[,c(3:4,15)], id.vars = "hour")
+  ferr_melt6 <- melt(alum_data[,c(5,7,12,14,15)], id.vars = "hour")
+  
+  ggplot(alum_melt1) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(alum_melt2) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(alum_melt3) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(alum_melt4) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(alum_melt5) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(alum_melt6) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  
+  ggplot(ferr_melt1) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(ferr_melt2) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(ferr_melt3) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(ferr_melt4) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(ferr_melt5) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+  ggplot(ferr_melt6) +
+    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    facet_wrap(vars(hour)) + 
+    theme(axis.title.x = element_blank(), 
+          axis.text.x = element_blank(), 
+          axis.ticks.x = element_blank())
+```
+
+```{r}
+  ferr_diff_pct <- (ferr_data$op_mg_p_l - ferr_data$op_conc_mg_p_l_hourly)/ferr_data$op_mg_p_l * 100
+  alum_diff_pct <- (alum_data$op_mg_p_l - alum_data$op_conc_mg_p_l_hourly)/alum_data$op_mg_p_l * 100
+  
+  # shows that alum can be concluded as better
+  t.test(alum_diff_pct, ferr_diff_pct)
+```
+
+
+
+
+
+

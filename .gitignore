@@ -5,3 +5,6 @@
 
 *.csv
 *.xlsx
+
+src/eda-report_cache
+src/eda-report_files
