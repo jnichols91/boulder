@@ -40,7 +40,7 @@ header-includes:
 
 ```{r setup, include=FALSE}
 #knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table,dvipsnames]{xcolor}', x, fixed = TRUE)})
-knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = FALSE)
+knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = TRUE)
 setwd("~/Desktop/MoWater/boulder/src")
 rm( list = ls() )
 
