@@ -48,22 +48,21 @@ final_data <- final_data %>% select(date, coagulant, everything()) %>% select(-h
 final_data$centrate_gal[100:101] <- 0
 
 # morning talk thursday
-# sensor issues refer to plot of red boxed ferric area 
 
 final_data <- final_data %>% 
-  filter(date(date) != ymd("2019-08-30") & date(date) != ymd("2019-09-02")) # plot insert number ferric issue
+  filter(date(date) != ymd("2019-08-30") & date(date) != ymd("2019-09-02")) 
 
 final_data <- final_data %>% 
-  filter(date(date) < ymd("2019-11-13") | date(date) > ymd("2019-12-01")) # plot alum issue
+  filter(date(date) < ymd("2019-11-13") | date(date) > ymd("2019-12-01")) 
 
-# vars Kate recommended to remove 
+# variables Kate recommended we can remove 
 del_vars <- c("influent_mgd_daily_avg", "primary_sludge_gmp_daily_avg", "primary_sludge_gal", "thickened_sludge_gal",
               "gvt_o_f_gpm", "daft_sub_gpm", "daft_sub_gal", "twas_flow_gpm_daily_avg") 
 
 final_data <- final_data %>% 
   select(-all_of(del_vars)) 
 
-# look at NA's and mention approach 
+# look at NA's 
 
 for (i in 8:12) {
   temp <- final_data %>% filter(hour(date) == i & is.na(influent_mgd_hourly_avg))

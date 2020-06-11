@@ -41,7 +41,7 @@ header-includes:
 
 ```{r setup, include=FALSE}
 #knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table,dvipsnames]{xcolor}', x, fixed = TRUE)})
-knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = TRUE, fig.height = 3)
+knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = FALSE, fig.height = 3)
 setwd("~/Desktop/MoWater/boulder/src")
 rm( list = ls() )
 
@@ -51,11 +51,15 @@ library(lubridate)
 library(latex2exp)
 library(reshape2)
 library(gridExtra)
+library(viridis)
+library(RColorBrewer)
 
 # make sure src is the current working directory
 
 load("../data/final-data.rda")
 load("../data/boulderMoWater.rda")
+theme_set(theme_bw())
+theme_update(panel.background = element_blank(), axis.line = element_line(colour = "black"))
 ```
 
 \begin{titlepage}
@@ -102,7 +106,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
           axis.title = element_text(size = 8))
 ```
 
-```{r, cache = FALSE}
+```{r}
   alumphos <- phosfax_10m %>% # phosfax only alum coagulant every 10 minutes 
     filter(date >= ymd("2019-10-22")) %>%
     filter(date <= ymd("2019-12-15"))
@@ -165,7 +169,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     labs(title = "Ferric OP Concentration at Dosing",
          x = "Date",
          y = "Hourly OP (mg/L)") +
-    scale_color_discrete(name = "Location", labels = c("Dosing Station", "Effluent")) +
+    scale_color_brewer(palette = "Dark2", name = "Location", labels = c("Dosing Station", "Effluent")) +
     theme(legend.title = element_text(size = 8),
           legend.text = element_text(size = 7),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
@@ -182,7 +186,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     labs(title = "Alum OP Concentration at Dosing",
          x = "Date",
          y = "Hourly OP (mg/L)") +
-    scale_color_discrete(name = "Location", labels = c("Dosing Station", "Effluent")) +
+    scale_color_viridis(discrete = TRUE, name = "Location", labels = c("Dosing Station", "Effluent")) +
     theme(legend.title = element_text(size = 8),
           legend.text = element_text(size = 7),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
@@ -247,8 +251,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -263,8 +267,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -279,8 +283,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -295,8 +299,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -311,8 +315,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -327,8 +331,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -343,8 +347,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -359,8 +363,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -375,8 +379,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -391,8 +395,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -407,8 +411,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -423,8 +427,8 @@ The following plots provide visuals for the effluent OP. They are split up by fe
     theme(axis.title.x = element_blank(), 
           axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(),
-          legend.title = element_text(size = 8),
-          legend.text = element_text(size = 7),
+          legend.title = element_text(size = 9),
+          legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
@@ -436,11 +440,11 @@ The following plots provide visuals for the effluent OP. They are split up by fe
   ferr_diff_pct <- (ferr_data$op_mg_p_l - ferr_data$op_conc_mg_p_l_hourly)/ferr_data$op_mg_p_l * 100
   alum_diff_pct <- (alum_data$op_mg_p_l - alum_data$op_conc_mg_p_l_hourly)/alum_data$op_mg_p_l * 100
 ```
-Percent change in alum OP:
+Percent Change in Alum OP:
 ```{r}
   alum_diff_pct
 ```
-Percent change in ferric OP:
+Percent Change in Ferric OP:
 ```{r}
   ferr_diff_pct
 ```
