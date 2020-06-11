@@ -41,7 +41,7 @@ header-includes:
 
 ```{r setup, include=FALSE}
 #knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table,dvipsnames]{xcolor}', x, fixed = TRUE)})
-knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = TRUE, fig.height = 3)
 setwd("~/Desktop/MoWater/boulder/src")
 rm( list = ls() )
 
@@ -83,10 +83,13 @@ load("../data/boulderMoWater.rda")
 \pagestyle{fancy}
 
 
+We begin by looking at how many observations we have based on the coagulant:
 
 ```{r}
   table(final_data$coagulant)
 ```
+
+The following plots provide visuals for the effluent OP. They are split up by ferric or alum, as well as a comparison of the hourly data after removal with the original 10-minute intervals.
 
 ```{r}
   p1 <- alum_data %>% ggplot() + 
@@ -99,7 +102,7 @@ load("../data/boulderMoWater.rda")
           axis.title = element_text(size = 8))
 ```
 
-```{r, fig.height = 3}
+```{r, cache = FALSE}
   alumphos <- phosfax_10m %>% # phosfax only alum coagulant every 10 minutes 
     filter(date >= ymd("2019-10-22")) %>%
     filter(date <= ymd("2019-12-15"))
@@ -119,7 +122,7 @@ load("../data/boulderMoWater.rda")
           axis.title = element_text(size = 8))
   grid.arrange(p1, p2, ncol = 2)
 ```
-
+\vfill
 ```{r}
   p1 <- ferr_data %>% ggplot() + 
     geom_point(aes(date, op_conc_mg_p_l_hourly)) + 
@@ -131,7 +134,7 @@ load("../data/boulderMoWater.rda")
           axis.title = element_text(size = 8))
 ```
 
-```{r, fig.height = 3}
+```{r}
   ferrphos <- phosfax_10m %>%
     filter(date >= ymd("2019-08-15")) %>%
     filter(date <= ymd("2019-09-07"))
@@ -155,29 +158,68 @@ load("../data/boulderMoWater.rda")
 ```
 
 
-```{r, fig.height = 3}
-  p1 <- ferr_data %>% ggplot() + 
-    geom_point(aes(date, op_mg_p_l), col = "blue") + 
-    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red") + 
+```{r}
+  ferr_op_melt <- melt(ferr_data[,c(1,3:4)], id = "date")
+  p1 <- ferr_op_melt %>% ggplot() + 
+    geom_point(aes(date, value, col = variable)) +  
+    labs(title = "Ferric OP Concentration at Dosing",
+         x = "Date",
+         y = "Hourly OP (mg/L)") +
+    scale_color_discrete(name = "Location", labels = c("Dosing Station", "Effluent")) +
+    theme(legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8),
+          legend.position = c(0.24,0.2),
+          legend.background = element_blank(),
+          legend.key = element_blank())
+  
+  alum_op_melt <- melt(alum_data[,c(1,3:4)], id = "date")
+  p2 <- alum_op_melt %>% ggplot() + 
+    geom_point(aes(date, value, col = variable)) +  
+    labs(title = "Alum OP Concentration at Dosing",
+         x = "Date",
+         y = "Hourly OP (mg/L)") +
+    scale_color_discrete(name = "Location", labels = c("Dosing Station", "Effluent")) +
+    theme(legend.title = element_text(size = 8),
+          legend.text = element_text(size = 7),
+          plot.title = element_text(face="bold", size = 9, hjust = 0.5),
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 9),
+          strip.text.x = element_text(size = 8),
+          legend.position = c(0.67,0.75),
+          legend.background = element_blank(),
+          legend.key = element_blank())
+  
+  grid.arrange(p1, p2, ncol = 2)
+```
+\vfill
+```{r}
+  p1 <- ferr_data %>% ggplot(aes(op_mg_p_l, op_conc_mg_p_l_hourly)) + 
+    geom_point() +
+    stat_smooth(method="lm", se=FALSE) + 
+    labs(title = "Ferric Effluent vs. Dosing OP Concentrations",
+         x = "Dosing OP (mg/L)",
+         y = "Effluent OP (mg/L)") +
     theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 8))
-  
-  p2 <- alum_data %>% ggplot() + 
-    geom_point(aes(date, op_mg_p_l), col = "blue") + 
-    geom_point(aes(date, op_conc_mg_p_l_hourly), col = "red") + 
+  p2 <- alum_data %>% ggplot(aes(op_mg_p_l, op_conc_mg_p_l_hourly)) + 
+    geom_point() +
+    stat_smooth(method="lm", se=FALSE) + 
+    labs(title = "Alum Effluent vs. Dosing OP Concentrations",
+         x = "Dosing OP (mg/L)",
+         y = "Effluent OP (mg/L)") +
     theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 8))
   
   grid.arrange(p1, p2, ncol = 2)
 ```
-
-
+\newpage
 ```{r}
-  final_data %>% ggplot() + 
-    geom_point(aes(op_mg_p_l, op_conc_mg_p_l_hourly))
-  
   ferr_data <- ferr_data %>% mutate(hour = hour(date))
   alum_data <- alum_data %>% mutate(hour = hour(date))
   
@@ -198,7 +240,7 @@ load("../data/boulderMoWater.rda")
              "13" = "Hour 13", "14" = "Hour 14","15" = "Hour 15","16" = "Hour 16","17" = "Hour 17","18" = "Hour 18")
 ```
 
-```{r}
+```{r, fig.height = 10}
   ggplot(alum_melt1) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -210,10 +252,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(alum_melt2) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -225,10 +268,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(alum_melt3) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -240,10 +284,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(alum_melt4) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -255,10 +300,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(alum_melt5) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -270,10 +316,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(alum_melt6) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -285,10 +332,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(ferr_melt1) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -300,10 +348,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(ferr_melt2) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -315,10 +364,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(ferr_melt3) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -330,10 +380,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(ferr_melt4) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -345,10 +396,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(ferr_melt5) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -360,10 +412,11 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
-```{r}
+```{r, fig.height = 10}
   ggplot(ferr_melt6) +
     geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
     facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
@@ -375,13 +428,24 @@ load("../data/boulderMoWater.rda")
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
-          strip.text.x = element_text(size = 8))
+          strip.text.x = element_text(size = 8),
+          legend.position = "bottom")
 ```
 \newpage
 ```{r}
   ferr_diff_pct <- (ferr_data$op_mg_p_l - ferr_data$op_conc_mg_p_l_hourly)/ferr_data$op_mg_p_l * 100
   alum_diff_pct <- (alum_data$op_mg_p_l - alum_data$op_conc_mg_p_l_hourly)/alum_data$op_mg_p_l * 100
-  
+```
+Percent change in alum OP:
+```{r}
+  alum_diff_pct
+```
+Percent change in ferric OP:
+```{r}
+  ferr_diff_pct
+```
+We perform a t-test to determine if they're performing differently
+```{r}
   # shows that alum can be concluded as better
   t.test(alum_diff_pct, ferr_diff_pct)
 ```

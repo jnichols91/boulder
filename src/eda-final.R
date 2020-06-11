@@ -34,15 +34,15 @@ alumphos <- phosfax_10m %>% # phosfax only alum coagulant every 10 minutes
   filter(date <= ymd("2019-12-15"))
 
 rects1 <- data.frame(xstart = as.POSIXct('2019-11-06 15:00:00'), 
-                    xend = as.POSIXct('2019-11-13 00:00:00'))
-# thursday plot 1
+                    xend = as.POSIXct('2019-12-01 00:00:00'))
+####### thursday plot 1
 alumphos %>% ggplot() + 
   geom_point(aes(date, op_conc_mg_p_l), size=1.25) + 
   labs(title = "Alum Effluent OP 10-minute Intervals",
        x = "Date",
        y = "Ortho-phosphate (mg/L)") + 
   geom_rect(data = rects1, aes(xmin = xstart, xmax = xend, 
-                              ymin = 0, ymax = 2.5),fill = "red",col = "red", alpha = 0.1) + 
+                              ymin = -Inf, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
   theme(plot.title = element_text(face="bold"))
 
 # comparing this to above we see 11/18 - 11/25 our merged data doesnt exist. a lot of outliers in this time period > 2
@@ -66,13 +66,14 @@ ferrphos <- phosfax_10m %>%
 rects2 <- data.frame(xstart = as.POSIXct('2019-08-30 15:00:00'), 
                      xend = as.POSIXct('2019-09-02 10:00:00'))
 
+#### thursday plot 2
 ferrphos %>% ggplot() + 
   geom_point(aes(date, op_conc_mg_p_l), size=1.25) + 
   labs(title = "Ferric Effluent OP 10-minute Intervals",
        x = "Date",
        y = "Ortho-phosphate (mg/L)") + 
   geom_rect(data = rects2, aes(xmin = xstart, xmax = xend, 
-                              ymin = -0.15, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
+                              ymin = -Inf, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
   theme(plot.title = element_text(face="bold"))
 
 ferr_data %>% ggplot() + 
