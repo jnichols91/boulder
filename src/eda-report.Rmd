@@ -1,0 +1,72 @@
+---
+output: pdf_document
+fontsize: 10pt
+graphics: yes
+header-includes:
+  - \usepackage{courier}
+  - \usepackage{enumitem}
+  - \usepackage{setspace}
+  - \usepackage{amsmath,amssymb,mathtools,courier,bm,upgreek}
+  - \newcommand{\benum}{\begin{enumerate}[leftmargin=*]}
+  - \newcommand{\benumr}{\begin{enumerate}[resume,leftmargin=*]}
+  - \newcommand{\eenum}{\end{enumerate}}
+  - \newcommand{\mbf}{\mathbf}
+  - \usepackage{array}
+  - \usepackage{graphicx}
+  - \usepackage{arydshln}
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+  - \usepackage[super]{nth}
+  - \usepackage{fancyhdr}
+  - \usepackage{lastpage}
+  - \usepackage{lipsum}
+  - \usepackage{listings}
+  - \usepackage{titling}
+  - \usepackage{xcolor}
+  - \definecolor{ForestGreen}{rgb}{0.13, 0.55, 0.13}
+  - \definecolor{RoyalBlue}{rgb}{0.25, 0.41, 0.88}
+  - \definecolor{YellowGreen}{rgb}{0.6, 0.8, 0.2}
+  - \fancyhead{}
+  - \fancyhead[LH]{\text{Due:} March \nth{6}, 2020}
+  - \fancyhead[CH]{Lecture 16 Assignment}
+  - \fancyhead[RH]{\thepage\ of \pageref{LastPage}}
+  - \setlength{\headheight}{13pt}
+  - \lstset{language=R, basicstyle=\small\ttfamily, numbersep=5pt,backgroundcolor=\color{white},showspaces=false,showstringspaces=false,showtabs=false,mathescape=false, escapeinside={(*@}{@*)},rulecolor=\color{black}, tabsize=2,captionpos=b,breaklines=true,breakatwhitespace=false,keywordstyle=\textcolor{RoyalBlue}, commentstyle=\textcolor{YellowGreen},stringstyle=\textcolor{ForestGreen}} 
+  - \usepackage[many,theorems]{tcolorbox}
+  - \newtcolorbox{msol}{top=5pt,box align=center,valign=center,colback=white,colframe=blue}
+  - \newcommand{\bmsol}{\begin{msol}}
+  - \newcommand{\emsol}{\end{msol}}
+---
+
+```{r setup, include=FALSE}
+#knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table,dvipsnames]{xcolor}', x, fixed = TRUE)})
+knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, fig.height = 7, fig.width = 11)
+setwd("~/Desktop/MoWater/boulder/src")
+library(tidyverse)
+library(dplyr)
+```
+
+\begin{titlepage}
+    \newgeometry{top=1in,bottom=1in,left=1in,right=1in,includefoot,includehead}
+    \begin{doublespace}
+        \centering
+        \hrulefill\\[0.25cm]
+        {\Large City of Boulder}\\
+        {\large Exploratory Data Analysis}\\
+        \hrulefill
+        \vfill
+        {\large Justin Nichols, }
+        \vfill
+        {\begin{singlespace}\footnotesize
+            \textbf{Abstract}\\
+               \lipsum[54]
+        \end{singlespace}}
+    \end{doublespace}
+\end{titlepage}
+
+\newpage
+
+\restoregeometry
+\pagestyle{fancy}
+
+\footnotesize
