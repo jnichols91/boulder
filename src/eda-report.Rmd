@@ -129,7 +129,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
 \vfill
 ```{r}
   p1 <- ferr_data %>% ggplot() + 
-    geom_point(size = 0.5,aes(date, op_conc_mg_p_l_hourly)) + 
+    geom_point(aes(date, op_conc_mg_p_l_hourly)) + 
     labs(title = "Ferric OP Hourly",
          x = "Date",
          y = "Hourly Ortho-phosphate (mg/L)") + 
@@ -176,7 +176,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
           strip.text.x = element_text(size = 8),
-          legend.position = c(0.24,0.2),
+          legend.position = c(0.7,0.89),
           legend.background = element_blank(),
           legend.key = element_blank())
   
@@ -193,7 +193,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 9),
           strip.text.x = element_text(size = 8),
-          legend.position = c(0.67,0.75),
+          legend.position = c(0.7,0.89),
           legend.background = element_blank(),
           legend.key = element_blank())
   
@@ -201,26 +201,29 @@ The following plots provide visuals for the effluent OP. They are split up by fe
 ```
 \vfill
 ```{r}
+
   p1 <- ferr_data %>% ggplot(aes(op_mg_p_l, op_conc_mg_p_l_hourly)) + 
-    geom_point() +
-    stat_smooth(method="lm", se=FALSE) + 
+    geom_point(size = 4) +
+    stat_smooth(method="lm", se= TRUE) + 
     labs(title = "Ferric Effluent vs. Dosing OP Concentrations",
          x = "Dosing OP (mg/L)",
          y = "Effluent OP (mg/L)") +
-    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
-          axis.text = element_text(size = 6),
-          axis.title = element_text(size = 8))
+    theme(plot.title = element_text(face="bold", size = 16, hjust = 0.5),
+          axis.text = element_text(size = 16),
+          axis.title = element_text(size = 16)) 
+  
   p2 <- alum_data %>% ggplot(aes(op_mg_p_l, op_conc_mg_p_l_hourly)) + 
-    geom_point() +
-    stat_smooth(method="lm", se=FALSE) + 
+    geom_point(size = 4) +
+    stat_smooth(method="lm", se= TRUE) + 
     labs(title = "Alum Effluent vs. Dosing OP Concentrations",
          x = "Dosing OP (mg/L)",
          y = "Effluent OP (mg/L)") +
-    theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
-          axis.text = element_text(size = 6),
-          axis.title = element_text(size = 8))
+    theme(plot.title = element_text(face="bold", size = 16, hjust = 0.5),
+          axis.text = element_text(size = 16),
+          axis.title = element_text(size = 16)) 
   
   grid.arrange(p1, p2, ncol = 2)
+  
 ```
 \newpage
 ```{r}
