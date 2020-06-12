@@ -129,7 +129,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
 \vfill
 ```{r}
   p1 <- ferr_data %>% ggplot() + 
-    geom_point(aes(date, op_conc_mg_p_l_hourly)) + 
+    geom_point(size = 0.5,aes(date, op_conc_mg_p_l_hourly)) + 
     labs(title = "Ferric OP Hourly",
          x = "Date",
          y = "Hourly Ortho-phosphate (mg/L)") + 
