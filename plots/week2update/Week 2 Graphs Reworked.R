@@ -132,22 +132,8 @@ d2 <- alum_data %>% ggplot(aes(op_mg_p_l, op_conc_mg_p_l_hourly)) +
 grid.arrange(d1, d2, ncol = 2)
 
 
-####Graph 5: Combined graph of 4
 
-e1 <- ggplot() + 
-  geom_point(data = ferr_data, aes(op_mg_p_l, op_conc_mg_p_l_hourly), color = "steelblue", size = 4) + 
-  geom_point(data = alum_data, aes(op_mg_p_l, op_conc_mg_p_l_hourly), color = "tan2", size = 4) +
-  theme(plot.title = element_text(face="bold", size = 25, hjust = 0.5),
-        axis.text = element_text(size = 20),
-        axis.title = element_text(size = 25)) +
-  labs(title = "Ferric Effluent OP",
-       x = "Date",
-       y = "Ortho-phosphate (mg/L)") +
-  stat_smooth(data = ferr_data, aes(op_mg_p_l, op_conc_mg_p_l_hourly),method="lm", se= TRUE) +
-  stat_smooth(data = alum_data, aes(op_mg_p_l, op_conc_mg_p_l_hourly),method="lm", se= TRUE, color = "tan") + 
-  stat_regline_equation(data = ferr_data, aes(op_mg_p_l, op_conc_mg_p_l_hourly), size = 4) +
-
-e1
+#pairs test to see if any variables are linear
 
 pairs(ferr_data)
 pairs(alum_data)
