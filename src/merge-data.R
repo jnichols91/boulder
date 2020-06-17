@@ -37,7 +37,7 @@ dosing_daily_mols <- dosing_daily[,c(1:2,7)]
 dosing_daily_mols$coagulant <- as.factor(dosing_daily_mols$coagulant)
 
 mix_phos <- inner_join(mixed_liqour_hourly, phosfax_hourly, by = "date")
-mix_phos <- tibble(date = mix_phos$date, phos_change = mix_phos$op_conc_mg_p_l_hourly-mix_phos$op_mg_p_l)
+mix_phos <- tibble(date = mix_phos$date, phos_change = mix_phos$op_mg_p_l - mix_phos$op_conc_mg_p_l_hourly)
 
 mix_phos_flow <- inner_join(mix_phos, flow_hourly, by = "date")
 
@@ -108,7 +108,12 @@ full_ancova <- full_ancova %>%
 ferr_data <- full_ancova %>% filter(coagulant == "Ferric")
 alum_data <- full_ancova %>% filter(coagulant == "Alum")
 
-save(full_ancova, ferr_data, alum_data, file = "../data/final-data.rda")
+half_ancova <- full_ancova %>% 
+  filter(date(date) > ymd("2019-08-18")) %>% 
+  filter(date(date) != ymd("2019-10-22")) 
+  
+
+save(full_ancova, half_ancova, file = "../data/final-data.rda")
 
 
 
