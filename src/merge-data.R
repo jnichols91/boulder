@@ -1,9 +1,7 @@
 rm( list = ls() )
 
 library(tidyverse)
-library(fields)
 library(lubridate)
-library(latex2exp)
 
 # make sure src is the current working directory
 
