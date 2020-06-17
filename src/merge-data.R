@@ -27,83 +27,90 @@ mixed_liqour_hourly <- mixed_liqour_hourly %>%
 mixed_liqour_hourly$date <- with(mixed_liqour_hourly, ymd_h(paste(date, hour, sep= ' ')))
 mixed_liqour_hourly <- mixed_liqour_hourly %>% select(1:2)
 
-# only grab the day and coagulant to be merged later 
-dosing_daily_coag <- dosing_daily[,1:2]
-dosing_daily_coag$coagulant <- as.factor(dosing_daily_coag$coagulant)
-
-# flow_hourly already in correct format---start joining data-sets 
-
-temp <- inner_join(mixed_liqour_hourly, phosfax_hourly, by = "date")
-temp2 <- inner_join(temp, flow_hourly, by = "date")
-
-# add the coagulant so reseparate the hour and date since dosing is only daily and not hourly... will restructure after
-temp2 <- temp2 %>% 
-  mutate(hour = hour(date), date = date(date))
-final_data <- inner_join(temp2, dosing_daily_coag, by = "date")
-
-# now restructure
-final_data$date <- with(final_data, ymd_h(paste(date, hour, sep= ' ')))
-# bring the coagulant to the second column 
-final_data <- final_data %>% select(date, coagulant, everything()) %>% select(-hour)
-final_data$centrate_gal[100:101] <- 0
-
-# morning talk thursday
-
-final_data <- final_data %>% 
-  filter(date(date) != ymd("2019-08-30") & date(date) != ymd("2019-09-02")) 
-
-final_data <- final_data %>% 
-  filter(date(date) < ymd("2019-11-13") | date(date) > ymd("2019-12-01")) 
-
 # variables Kate recommended we can remove 
 del_vars <- c("influent_mgd_daily_avg", "primary_sludge_gmp_daily_avg", "primary_sludge_gal", "thickened_sludge_gal",
               "gvt_o_f_gpm", "daft_sub_gpm", "daft_sub_gal", "twas_flow_gpm_daily_avg") 
 
-final_data <- final_data %>% 
+flow_hourly <- flow_hourly %>% 
   select(-all_of(del_vars)) 
+
+# only grab the day and coagulant to be merged later 
+dosing_daily_mols <- dosing_daily[,c(1:2,7)]
+dosing_daily_mols$coagulant <- as.factor(dosing_daily_mols$coagulant)
+
+mix_phos <- inner_join(mixed_liqour_hourly, phosfax_hourly, by = "date")
+mix_phos <- tibble(date = mix_phos$date, phos_change = mix_phos$op_conc_mg_p_l_hourly-mix_phos$op_mg_p_l)
+
+mix_phos_flow <- inner_join(mix_phos, flow_hourly, by = "date")
+
+# 107 observation at this point. included coagulant, flow, and op change 
+mix_phos_flow <- mix_phos_flow %>% mutate(date = ymd_hms(date)) %>% 
+  separate(date, into = c('date', 'time'), sep=' ', remove = FALSE) %>% 
+  select(date, time, everything())
+
+mix_phos_flow$date <- as_datetime(mix_phos_flow$date)
+dosing_daily_mols$date <- as_datetime(dosing_daily_mols$date)
+
+full_ancova <- inner_join(mix_phos_flow, dosing_daily_mols, by = "date") %>% 
+  select(date, time, coagulant, everything())
+
+full_ancova$date <- with(full_ancova, ymd_hms(paste(as.character(date), time, sep = ' ')))
+full_ancova <- full_ancova %>% select(-time) %>%
+  filter(coagulant == "Ferric" | coagulant == "Alum")
+
+full_ancova$centrate_gal[is.na(full_ancova$centrate_gal)] <- 0
+
+# morning talk thursday
+
+full_ancova <- full_ancova %>% 
+  filter(date(date) != ymd("2019-08-30") & date(date) != ymd("2019-09-02")) 
+
+full_ancova <- full_ancova %>% 
+  filter(date(date) < ymd("2019-11-13") | date(date) > ymd("2019-12-01")) 
 
 # look at NA's 
 
 for (i in 8:12) {
-  temp <- final_data %>% filter(hour(date) == i & is.na(influent_mgd_hourly_avg))
-  value <- final_data %>% 
+  temp <- full_ancova %>% filter(hour(date) == i & is.na(influent_mgd_hourly_avg))
+  value <- full_ancova %>% 
     filter(hour(date) == i) %>%  
     select(influent_mgd_hourly_avg) %>% 
     summarise(mean(influent_mgd_hourly_avg, na.rm = TRUE))
-  final_data$influent_mgd_hourly_avg[final_data$date == temp$date] <- as.numeric(value)
+  full_ancova$influent_mgd_hourly_avg[full_ancova$date == temp$date] <- as.numeric(value)
   
-  temp <- final_data %>% filter(hour(date) == i & is.na(mlws_flow_gpm))
-  value <- final_data %>% 
+  temp <- full_ancova %>% filter(hour(date) == i & is.na(mlws_flow_gpm))
+  value <- full_ancova %>% 
     filter(hour(date) == i) %>%  
     select(mlws_flow_gpm) %>% 
     summarise(mean(mlws_flow_gpm, na.rm = TRUE))
-  final_data$mlws_flow_gpm[final_data$date == temp$date] <- as.numeric(value)
+  full_ancova$mlws_flow_gpm[full_ancova$date == temp$date] <- as.numeric(value)
 }
 
 for (i in 7:13) {
-  temp <- final_data %>% filter(hour(date) == i & is.na(abi_mgd))
-  value <- final_data %>% 
+  temp <- full_ancova %>% filter(hour(date) == i & is.na(abi_mgd))
+  value <- full_ancova %>% 
     filter(hour(date) == i) %>%  
     select(abi_mgd) %>% 
     summarise(mean(abi_mgd, na.rm = TRUE))
-  final_data$abi_mgd[final_data$date == temp$date] <- as.numeric(value)
+  full_ancova$abi_mgd[full_ancova$date == temp$date] <- as.numeric(value)
   
-  temp <- final_data %>% filter(hour(date) == i & is.na(ras_gpm))
-  value <- final_data %>% 
+  temp <- full_ancova %>% filter(hour(date) == i & is.na(ras_gpm))
+  value <- full_ancova %>% 
     filter(hour(date) == i) %>%  
     select(ras_gpm) %>% 
     summarise(mean(ras_gpm, na.rm = TRUE))
-  final_data$ras_gpm[final_data$date == temp$date] <- as.numeric(value)
+  full_ancova$ras_gpm[full_ancova$date == temp$date] <- as.numeric(value)
 }
 
-final_data <- final_data %>% 
+full_ancova <- full_ancova %>% 
   filter(mlws_flow_gpm > 100) %>% 
-  select(-twas_flow_gal)
+  select(-twas_flow_gal) %>% 
+  select(date, coagulant, mols_of_metal_kmol_day, influent_mgd_hourly_avg, everything())
 
-ferr_data <- final_data %>% filter(coagulant == "Ferric")
-alum_data <- final_data %>% filter(coagulant == "Alum")
+ferr_data <- full_ancova %>% filter(coagulant == "Ferric")
+alum_data <- full_ancova %>% filter(coagulant == "Alum")
 
-save(final_data, ferr_data, alum_data, file = "../data/final-data.rda")
+save(full_ancova, ferr_data, alum_data, file = "../data/final-data.rda")
 
 
 
