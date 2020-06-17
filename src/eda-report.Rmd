@@ -230,19 +230,19 @@ The following plots provide visuals for the effluent OP. They are split up by fe
   ferr_data <- ferr_data %>% mutate(hour = hour(date))
   alum_data <- alum_data %>% mutate(hour = hour(date))
   
-  alum_melt1 <- melt(alum_data[,c(8,15)], id.vars = "hour")
-  alum_melt2 <- melt(alum_data[,c(13,15)], id.vars = "hour")
-  alum_melt3 <- melt(alum_data[,c(9:10,15)], id.vars = "hour")
-  alum_melt4 <- melt(alum_data[,c(6,11,15)], id.vars = "hour")
-  alum_melt5 <- melt(alum_data[,c(3:4,15)], id.vars = "hour")
-  alum_melt6 <- melt(alum_data[,c(5,7,12,14,15)], id.vars = "hour")
+  alum_melt1 <- melt(alum_data[,c(8,14)], id.vars = "hour")
+  alum_melt2 <- melt(alum_data[,c(13,14)], id.vars = "hour")
+  alum_melt3 <- melt(alum_data[,c(9:10,14)], id.vars = "hour")
+  alum_melt4 <- melt(alum_data[,c(6,11,14)], id.vars = "hour")
+  alum_melt5 <- melt(alum_data[,c(3:4,14)], id.vars = "hour")
+  alum_melt6 <- melt(alum_data[,c(5,7,12,13,14)], id.vars = "hour")
   
-  ferr_melt1 <- melt(alum_data[,c(8,15)], id.vars = "hour")
-  ferr_melt2 <- melt(alum_data[,c(13,15)], id.vars = "hour")
-  ferr_melt3 <- melt(alum_data[,c(9:10,15)], id.vars = "hour")
-  ferr_melt4 <- melt(alum_data[,c(6,11,15)], id.vars = "hour")
-  ferr_melt5 <- melt(alum_data[,c(3:4,15)], id.vars = "hour")
-  ferr_melt6 <- melt(alum_data[,c(5,7,12,14,15)], id.vars = "hour")
+  ferr_melt1 <- melt(alum_data[,c(8,14)], id.vars = "hour")
+  ferr_melt2 <- melt(alum_data[,c(13,14)], id.vars = "hour")
+  ferr_melt3 <- melt(alum_data[,c(9:10,14)], id.vars = "hour")
+  ferr_melt4 <- melt(alum_data[,c(6,11,14)], id.vars = "hour")
+  ferr_melt5 <- melt(alum_data[,c(3:4,14)], id.vars = "hour")
+  ferr_melt6 <- melt(alum_data[,c(5,7,12,13,14)], id.vars = "hour")
   hours <- c("7" = "Hour 7", "8" = "Hour 8", "9" = "Hour 9", "10" = "Hour 10", "11" = "Hour 11", "12" = "Hour 12",
              "13" = "Hour 13", "14" = "Hour 14","15" = "Hour 15","16" = "Hour 16","17" = "Hour 17","18" = "Hour 18")
 ```
@@ -457,7 +457,7 @@ We perform a t-test to determine if they're performing differently
   t.test(alum_diff_pct, ferr_diff_pct)
 ```
 
-
+                                                                                                         
 
 
 

@@ -97,12 +97,13 @@ for (i in 7:13) {
 }
 
 final_data <- final_data %>% 
-  filter(mlws_flow_gpm > 100) # SCADA system down 
+  filter(mlws_flow_gpm > 100) %>% 
+  select(-twas_flow_gal)
 
 ferr_data <- final_data %>% filter(coagulant == "Ferric")
 alum_data <- final_data %>% filter(coagulant == "Alum")
 
-# save(final_data, ferr_data, alum_data, file = "../data/final-data.rda")
+save(final_data, ferr_data, alum_data, file = "../data/final-data.rda")
 
 
 
