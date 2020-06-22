@@ -1,73 +1,84 @@
+#### Clear environment and load libraries ####
 rm( list = ls() )
 
 library(tidyverse)
 library(lubridate)
 
-# make sure src is the current working directory
-
+#### Make sure src is the current working directory ####
 load("../data/boulderMoWater.rda")
 
-# add the hour for grouping and averaging hourly 
+
+#### Convert 10 minute intervals to hourly average ####
 phosfax_hourly <- phosfax_10m %>% 
-  mutate(hour = hour(date)) %>% 
-  group_by(date = date(date), hour) %>% 
-  summarise(op_conc_mg_p_l_hourly = mean(op_conc_mg_p_l, na.rm = TRUE)) %>% 
+  mutate( hour = hour(date) ) %>% 
+  group_by( date = date(date), hour ) %>% 
+  summarise(op_conc_mg_p_l_hourly = mean(op_conc_mg_p_l, na.rm = TRUE) ) %>% 
   ungroup()
 
-# turn the date back into one posixct object and eliminate the hour column
+#### Turn timestamp into format for merging later ####
 phosfax_hourly$date <- with(phosfax_hourly, ymd_h(paste(date, hour, sep= ' ')))
 phosfax_hourly <- phosfax_hourly %>% select(date, op_conc_mg_p_l_hourly)
 
-# similar as above get into the same format. just include the hour of the day
+
+#### Truncate the minutes to match the format above ####
 mixed_liqour_hourly <- mixed_liqour_hourly %>% 
-  mutate(hour = hour(date)) %>% 
-  mutate(date = date(date))
+  mutate( hour = hour(date) ) %>% 
+  mutate( date = date(date) )
 mixed_liqour_hourly$date <- with(mixed_liqour_hourly, ymd_h(paste(date, hour, sep= ' ')))
 mixed_liqour_hourly <- mixed_liqour_hourly %>% select(1:2)
 
-# variables Kate recommended we can remove 
+
+#### Remove unnecessary varaibles, per Kate ####
 del_vars <- c("influent_mgd_daily_avg", "primary_sludge_gmp_daily_avg", "primary_sludge_gal", "thickened_sludge_gal",
               "gvt_o_f_gpm", "daft_sub_gpm", "daft_sub_gal", "twas_flow_gpm_daily_avg") 
-
 flow_hourly <- flow_hourly %>% 
   select(-all_of(del_vars)) 
 
-# only grab the day and coagulant to be merged later 
+
+#### Coagulant (as a grouping factor Alum & Ferric) and mols to be merged later ####
 dosing_daily_mols <- dosing_daily[,c(1:2,7)]
 dosing_daily_mols$coagulant <- as.factor(dosing_daily_mols$coagulant)
 
+
+#### Merge the mixing data and phosfax hourly #### 
 mix_phos <- inner_join(mixed_liqour_hourly, phosfax_hourly, by = "date")
 mix_phos <- tibble(date = mix_phos$date, phos_change = mix_phos$op_mg_p_l - mix_phos$op_conc_mg_p_l_hourly)
 
+#### Add on the the flow data ####
 mix_phos_flow <- inner_join(mix_phos, flow_hourly, by = "date")
 
-# 107 observation at this point. included coagulant, flow, and op change 
+
+#### Separate the timestampe into a date and a time while salvaging data structure for date ####
 mix_phos_flow <- mix_phos_flow %>% mutate(date = ymd_hms(date)) %>% 
   separate(date, into = c('date', 'time'), sep=' ', remove = FALSE) %>% 
   select(date, time, everything())
-
 mix_phos_flow$date <- as_datetime(mix_phos_flow$date)
 dosing_daily_mols$date <- as_datetime(dosing_daily_mols$date)
 
+
+#### Bring together the coagulant and mols information for a final data set ####
 full_ancova <- inner_join(mix_phos_flow, dosing_daily_mols, by = "date") %>% 
   select(date, time, coagulant, everything())
 
-full_ancova$date <- with(full_ancova, ymd_hms(paste(as.character(date), time, sep = ' ')))
+
+#### Filter out the observations with only Alum and Ferric, i.e., remove 'None' ####
+full_ancova$date <- with( full_ancova, ymd_hms( paste(as.character(date), time, sep = ' ') ) )
 full_ancova <- full_ancova %>% select(-time) %>%
   filter(coagulant == "Ferric" | coagulant == "Alum")
 
+
+#### Filled the trend occurring in variable ####
 full_ancova$centrate_gal[is.na(full_ancova$centrate_gal)] <- 0
 
-# morning talk thursday
-
+#### Removed days where issues occurred in the system---spotty data ####
 full_ancova <- full_ancova %>% 
   filter(date(date) != ymd("2019-08-30") & date(date) != ymd("2019-09-02")) 
 
 full_ancova <- full_ancova %>% 
   filter(date(date) < ymd("2019-11-13") | date(date) > ymd("2019-12-01")) 
 
-# look at NA's 
 
+#### Fill NA values based on similar hourly averages from availabel data ####
 for (i in 8:12) {
   temp <- full_ancova %>% filter(hour(date) == i & is.na(influent_mgd_hourly_avg))
   value <- full_ancova %>% 
@@ -100,20 +111,20 @@ for (i in 7:13) {
   full_ancova$ras_gpm[full_ancova$date == temp$date] <- as.numeric(value)
 }
 
+
+#### Filter out two days where issues occured in the morning and remove unimporant sludge variable ####
 full_ancova <- full_ancova %>% 
   filter(mlws_flow_gpm > 100) %>% 
   select(-twas_flow_gal) %>% 
   select(date, coagulant, mols_of_metal_kmol_day, influent_mgd_hourly_avg, everything())
 
-ferr_data <- full_ancova %>% filter(coagulant == "Ferric")
-alum_data <- full_ancova %>% filter(coagulant == "Alum")
-
-half_ancova <- full_ancova %>% 
+#### Data only including observations a few days into dosing ####
+partial_ancova <- full_ancova %>% 
   filter(date(date) > ymd("2019-08-18")) %>% 
   filter(date(date) != ymd("2019-10-22")) 
   
 
-save(full_ancova, half_ancova, file = "../data/final-data.rda")
+save(full_ancova, partial_ancova, file = "../data/final-data.rda")
 
 
 
