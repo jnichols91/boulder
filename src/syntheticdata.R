@@ -3,12 +3,14 @@ rm( list = ls())
 library(tidyverse)
 library(ggplot2)
 
+
 load("../data/final-data.rda")
 load("../data/boulderMoWater.rda")
 
 
 x1 <- c(rep(1,72))
-x1[1:32] <-0
+x1[full_ancova$coagulant == "Ferric"] <- 0
+
 
 # mols of metal as covariate 
 x2 <- full_ancova %>% select(mols_of_metal_kmol_day,
@@ -22,7 +24,6 @@ y<-  5  - x1 + x2*.1 + .2* rnorm(72)
 
 
 df <- data.frame( Noise = y, x2, treatment=as.factor( x1))
-view(df)
 
 
 #### plot of the data with two groups
