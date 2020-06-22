@@ -128,7 +128,7 @@ em3 <- emmeans_test(partial_ancova3, phos_change ~ coagulant , covariate = prima
                     p.adjust.method = "bonferroni")
 
 
-knitr::kable( em2, digits = 3, format = "pandoc", caption = "Primary Sludge ANOVA Table" )
+knitr::kable( em3, digits = 3, format = "pandoc", caption = "Primary Sludge ANOVA Table" )
 
 
 #### Effluent Flow Covariate ANCOVA Analysis ####
@@ -165,7 +165,7 @@ em4 <- emmeans_test(partial_ancova4, phos_change ~ coagulant , covariate = efflu
                     p.adjust.method = "bonferroni")
 
 
-knitr::kable( em2, digits = 3, format = "pandoc", caption = "Effluent ANOVA Table" )
+knitr::kable( em4, digits = 3, format = "pandoc", caption = "Effluent ANOVA Table" )
 
 
 
