@@ -1,10 +1,15 @@
+# This data comes from the City of Boulder Wastewater Facility. Data cleaning was done by
+# Justin Nichols, Arlyn Alcid, and Ocean Wu. June 2020. It was split based on system 
+# errors through the months of August 2019 - December 2019
+
+
 #### Clear environment and load libraries ####
 rm( list = ls() )
 
 library(tidyverse)
 library(lubridate)
 
-#### Make sure src is the current working directory ####
+#### Make sure src is the current working directory and load data ####
 load("../data/boulderMoWater.rda")
 
 
@@ -12,11 +17,12 @@ load("../data/boulderMoWater.rda")
 phosfax_hourly <- phosfax_10m %>% 
   mutate( hour = hour(date) ) %>% 
   group_by( date = date(date), hour ) %>% 
-  summarise(op_conc_mg_p_l_hourly = mean(op_conc_mg_p_l, na.rm = TRUE) ) %>% 
+  summarise( op_conc_mg_p_l_hourly = mean(op_conc_mg_p_l, na.rm = TRUE) ) %>% 
   ungroup()
 
+
 #### Turn timestamp into format for merging later ####
-phosfax_hourly$date <- with(phosfax_hourly, ymd_h(paste(date, hour, sep= ' ')))
+phosfax_hourly$date <- with( phosfax_hourly, ymd_h( paste(date, hour, sep= ' ') ) )
 phosfax_hourly <- phosfax_hourly %>% select(date, op_conc_mg_p_l_hourly)
 
 
@@ -24,7 +30,7 @@ phosfax_hourly <- phosfax_hourly %>% select(date, op_conc_mg_p_l_hourly)
 mixed_liqour_hourly <- mixed_liqour_hourly %>% 
   mutate( hour = hour(date) ) %>% 
   mutate( date = date(date) )
-mixed_liqour_hourly$date <- with(mixed_liqour_hourly, ymd_h(paste(date, hour, sep= ' ')))
+mixed_liqour_hourly$date <- with( mixed_liqour_hourly, ymd_h( paste(date, hour, sep= ' ') ) )
 mixed_liqour_hourly <- mixed_liqour_hourly %>% select(1:2)
 
 
@@ -32,7 +38,7 @@ mixed_liqour_hourly <- mixed_liqour_hourly %>% select(1:2)
 del_vars <- c("influent_mgd_daily_avg", "primary_sludge_gmp_daily_avg", "primary_sludge_gal", "thickened_sludge_gal",
               "gvt_o_f_gpm", "daft_sub_gpm", "daft_sub_gal", "twas_flow_gpm_daily_avg") 
 flow_hourly <- flow_hourly %>% 
-  select(-all_of(del_vars)) 
+  select( -all_of(del_vars) ) 
 
 
 #### Coagulant (as a grouping factor Alum & Ferric) and mols to be merged later ####
@@ -49,7 +55,7 @@ mix_phos_flow <- inner_join(mix_phos, flow_hourly, by = "date")
 
 
 #### Separate the timestampe into a date and a time while salvaging data structure for date ####
-mix_phos_flow <- mix_phos_flow %>% mutate(date = ymd_hms(date)) %>% 
+mix_phos_flow <- mix_phos_flow %>% mutate( date = ymd_hms(date) ) %>% 
   separate(date, into = c('date', 'time'), sep=' ', remove = FALSE) %>% 
   select(date, time, everything())
 mix_phos_flow$date <- as_datetime(mix_phos_flow$date)
@@ -64,7 +70,7 @@ full_ancova <- inner_join(mix_phos_flow, dosing_daily_mols, by = "date") %>%
 #### Filter out the observations with only Alum and Ferric, i.e., remove 'None' ####
 full_ancova$date <- with( full_ancova, ymd_hms( paste(as.character(date), time, sep = ' ') ) )
 full_ancova <- full_ancova %>% select(-time) %>%
-  filter(coagulant == "Ferric" | coagulant == "Alum")
+  filter( coagulant == "Ferric" | coagulant == "Alum" )
 
 
 #### Filled the trend occurring in variable ####
@@ -72,58 +78,58 @@ full_ancova$centrate_gal[is.na(full_ancova$centrate_gal)] <- 0
 
 #### Removed days where issues occurred in the system---spotty data ####
 full_ancova <- full_ancova %>% 
-  filter(date(date) != ymd("2019-08-30") & date(date) != ymd("2019-09-02")) 
+  filter( date(date) != ymd("2019-08-30") & date(date) != ymd("2019-09-02") ) 
 
 full_ancova <- full_ancova %>% 
-  filter(date(date) < ymd("2019-11-13") | date(date) > ymd("2019-12-01")) 
+  filter( date(date) < ymd("2019-11-13") | date(date) > ymd("2019-12-01") ) 
 
 
 #### Fill NA values based on similar hourly averages from availabel data ####
-for (i in 8:12) {
-  temp <- full_ancova %>% filter(hour(date) == i & is.na(influent_mgd_hourly_avg))
+for ( i in 8:12 ) {
+  temp <- full_ancova %>% filter( hour(date) == i & is.na(influent_mgd_hourly_avg) )
   value <- full_ancova %>% 
-    filter(hour(date) == i) %>%  
+    filter( hour(date) == i ) %>%  
     select(influent_mgd_hourly_avg) %>% 
-    summarise(mean(influent_mgd_hourly_avg, na.rm = TRUE))
+    summarise( mean(influent_mgd_hourly_avg, na.rm = TRUE) )
   full_ancova$influent_mgd_hourly_avg[full_ancova$date == temp$date] <- as.numeric(value)
   
-  temp <- full_ancova %>% filter(hour(date) == i & is.na(mlws_flow_gpm))
+  temp <- full_ancova %>% filter( hour(date) == i & is.na(mlws_flow_gpm) )
   value <- full_ancova %>% 
-    filter(hour(date) == i) %>%  
+    filter( hour(date) == i ) %>%  
     select(mlws_flow_gpm) %>% 
-    summarise(mean(mlws_flow_gpm, na.rm = TRUE))
+    summarise( mean(mlws_flow_gpm, na.rm = TRUE) )
   full_ancova$mlws_flow_gpm[full_ancova$date == temp$date] <- as.numeric(value)
 }
 
 for (i in 7:13) {
-  temp <- full_ancova %>% filter(hour(date) == i & is.na(abi_mgd))
+  temp <- full_ancova %>% filter( hour(date) == i & is.na(abi_mgd) )
   value <- full_ancova %>% 
-    filter(hour(date) == i) %>%  
+    filter( hour(date) == i ) %>%  
     select(abi_mgd) %>% 
-    summarise(mean(abi_mgd, na.rm = TRUE))
+    summarise( mean(abi_mgd, na.rm = TRUE) )
   full_ancova$abi_mgd[full_ancova$date == temp$date] <- as.numeric(value)
   
-  temp <- full_ancova %>% filter(hour(date) == i & is.na(ras_gpm))
+  temp <- full_ancova %>% filter( hour(date) == i & is.na(ras_gpm) )
   value <- full_ancova %>% 
-    filter(hour(date) == i) %>%  
+    filter( hour(date) == i ) %>%  
     select(ras_gpm) %>% 
-    summarise(mean(ras_gpm, na.rm = TRUE))
+    summarise( mean(ras_gpm, na.rm = TRUE) )
   full_ancova$ras_gpm[full_ancova$date == temp$date] <- as.numeric(value)
 }
 
 
 #### Filter out two days where issues occured in the morning and remove unimporant sludge variable ####
 full_ancova <- full_ancova %>% 
-  filter(mlws_flow_gpm > 100) %>% 
+  filter( mlws_flow_gpm > 100 ) %>% 
   select(-twas_flow_gal) %>% 
   select(date, coagulant, mols_of_metal_kmol_day, influent_mgd_hourly_avg, everything())
 
 #### Data only including observations a few days into dosing ####
 partial_ancova <- full_ancova %>% 
-  filter(date(date) > ymd("2019-08-18")) %>% 
-  filter(date(date) != ymd("2019-10-22")) 
+  filter( date(date) > ymd("2019-08-18") ) %>% 
+  filter( date(date) != ymd("2019-10-22") ) 
   
-
+#### Save as rda file #### 
 save(full_ancova, partial_ancova, file = "../data/final-data.rda")
 
 

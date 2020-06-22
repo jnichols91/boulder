@@ -21,88 +21,24 @@ theme_update(panel.background = element_blank(), axis.line = element_line(colour
 pairs(full_ancova)
 
 
-#### Influent Covariate ANCOVA Analysis ####
-full_ancova1 <- full_ancova %>% select(coagulant, phos_change, influent_mgd_hourly_avg)
-
-# shows the 'linear' relationship between the outcome variable and covarient
-plot(full_ancova1$influent_mgd_hourly_avg, full_ancova1$phos_change)
-
-# plot the points and linear fit by coagulant; test for linearity with covariate
-ggplot( full_ancova1, aes(influent_mgd_hourly_avg, phos_change, color = coagulant) ) +
-  geom_point( aes(shape = coagulant), size = 2, alpha = .75 ) +
-  geom_smooth( method='lm', se = TRUE ) +
-  stat_regline_equation( aes( label = paste(..eq.label.., ..rr.label.., sep = '~~~') ) , size = 3 ) +
-  scale_color_brewer(palette = "Dark2") + 
-  theme( legend.position = "right",
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14),
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 14),
-        plot.title = element_text( face="bold", size = 16, hjust = 0.5 ) ) +
-  labs(x = "Influent Hourly Average (mgd)",
-       y = "Change in Phosphorus (mg/L)",
-       title = "Influent Vs Change of Phosphorus", 
-       color = "Coagulant")  +
-  guides(shape = FALSE)
-
-# test for homogeneity; compares the behavior (slope) with the addition of covariate
-full_test1 <- anova_test(phos_change ~ influent_mgd_hourly_avg * coagulant, data = full_ancova1)
-get_anova_table(full_test1)
-
-# estimate marginal means; anova test with the addition of the covariate---test for p < 0.05
-full_ancova1$coagulant <- as.character(full_ancova1$coagulant)
-em1 <- emmeans_test(full_ancova1, phos_change ~ coagulant , covariate = influent_mgd_hourly_avg,
-             p.adjust.method = "bonferroni")
-
-knitr::kable(em1, digits = 3, format = "pandoc", caption = "Influent ANOVA table")
+full_ancova1 <- full_ancova %>% select(coagulant,phos_change,influent_mgd_hourly_avg)
+plot(full_ancova1$influent_mgd_hourly_avg,full_ancova1$phos_change)
 
 
-#### Mols of metal Covariate ANCOVA Analysis ####
 full_ancova2 <- full_ancova %>% select(coagulant,phos_change,mols_of_metal_kmol_day)
+plot(full_ancova2$mols_of_metal_kmol_day,full_ancova2$phos_change)
 
 
-plot(full_ancova2$mols_ofmetal_kmol_day, full_ancova2$phos_change)
-
-
-ggplot( full_ancova2, aes(mols_of_metal_kmol_day, phos_change, color = coagulant) ) +
-  geom_point( aes(shape = coagulant), size = 2, alpha = .75 ) +
-  geom_smooth( method='lm', se = TRUE ) +
-  stat_regline_equation( aes( label = paste(..eq.label.., ..rr.label.., sep = '~~~') ) , size = 3 ) +
-  scale_color_brewer(palette = "Dark2") + 
-  theme( legend.position = "right",
-         axis.text = element_text(size = 12),
-         axis.title = element_text(size = 14),
-         legend.text = element_text(size = 12),
-         legend.title = element_text(size = 14),
-         plot.title = element_text( face="bold", size = 16, hjust = 0.5 ) ) +
-  labs(x = "Daily Mols of Metal (Kmol)",
-       y = "Change in Phosphorus (mg/L)",
-       title = "Mols of Metal Vs Change of Phosphorus", 
-       color = "Coagulant")  +
-  guides(shape = FALSE)
-
-
-full_test2 <- anova_test(phos_change ~ mols_of_metal_kmol_day * coagulant, data = full_ancova2)
-get_anova_table(full_test2)
-
-
-full_ancova2$coagulant <- as.character(full_ancova2$coagulant)
-em2 <- emmeans_test(full_ancova2, phos_change ~ coagulant , covariate = mols_of_metal_kmol_day,
-                    p.adjust.method = "bonferroni")
-
-
-knitr::kable(em2, digits = 3, format = "pandoc", caption = "Mols of Metal ANOVA table")
-
-
-#### Primary Sludge Covariate ANCOVA Analysis ####
 full_ancova3 <- full_ancova %>% select(coagulant,phos_change,primary_sludge_gmp_hourly_avg)
 plot(full_ancova3$primary_sludge_gmp_hourly_avg,full_ancova3$phos_change)
 
 
-#### Effluent Flow Covariate ANCOVA Analysis ####
 full_ancova4 <- full_ancova %>% select(coagulant,phos_change,effluent_mgd)
 plot(full_ancova4$effluent_mgd,full_ancova4$phos_change)
 
+
+fit1 <- anova_test(phos_change ~ influent_mgd_hourly_avg * coagulant,data = full_ancova1)
+get_anova_table(fit1)
 
 #- equality of error variances across groups, normal and uncorrelated error terms
 plot(residuals(lm(phos_change~influent_mgd_hourly_avg+coagulant, data = full_ancova1)))
@@ -110,7 +46,22 @@ plot(residuals(lm(phos_change~influent_mgd_hourly_avg+coagulant, data = full_anc
 get_anova_table(anova_test(phos_change ~ influent_mgd_hourly_avg*coagulant, data = full_ancova1))
 #- linearity and equality of slopes of different group regression lines
 
-
+a <- ggplot(full_ancova1, aes(influent_mgd_hourly_avg, phos_change, color = coagulant)) +
+  geom_point(aes(shape = coagulant), size = 2, alpha = .75) +
+  geom_smooth(method='lm', se = TRUE) +
+  stat_regline_equation(aes(label=paste(..eq.label..)), size = 3) +
+  scale_color_brewer(palette = "Dark2") + 
+  theme(legend.position = "right",
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        plot.title = element_text(face="bold", size = 16, hjust = 0.5)) +
+  labs(x = "Influent Hourly Average (mgd)",
+       y = "Change in Phosphorus (mg/L)",
+       title = "Influent Vs Change of Phosphorus", 
+       color = "Coagulant")  +
+  guides(shape = FALSE)
 
 #png(file = "../plots/week3/full_ancova_influent.png", bg="transparent", width = 1900, height = 700)
 #grid.arrange(a, ncol = 1)
