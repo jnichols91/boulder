@@ -1,12 +1,7 @@
-rm( list = ls() )
+rm( list = ls())
 
 library(tidyverse)
-library(fields)
-library(lubridate)
-library(latex2exp)
-library(rstatix)
-library(emmeans)
-library(ggpubr)
+library(ggplot2)
 
 load("../data/final-data.rda")
 load("../data/boulderMoWater.rda")
@@ -14,7 +9,6 @@ load("../data/boulderMoWater.rda")
 
 x1 <- c(rep(1,72))
 x1[1:32] <-0
-x1
 
 # mols of metal as covariate 
 x2 <- full_ancova %>% select(mols_of_metal_kmol_day,
@@ -25,22 +19,90 @@ x2 <- full_ancova %>% select(mols_of_metal_kmol_day,
 
 #adding noises
 y<-  5  - x1 + x2*.1 + .2* rnorm(72)
-y
 
 
-df<- data.frame( Y=y, X = x2, treatment=as.factor( x1))
+df <- data.frame( Noise = y, x2, treatment=as.factor( x1))
 view(df)
 
 
+#### plot of the data with two groups
 
+##mols of metal vs noise added mols of metal
 df %>% 
-  ggplot(aes(mols_of_metal_kmol_day,mols_of_metal_kmol_day.1, col = treatment)) +
+  ggplot(aes(mols_of_metal_kmol_day,Noise.mols_of_metal_kmol_day, col = treatment)) +
   geom_point()
 
-obj0<- lm( mols_of_metal_kmol_day.1 ~ treatment, data = df)
+##influent_mgd_hourly_avgl vs noise added influent_mgd_hourly_avg
+df %>% 
+  ggplot(aes(influent_mgd_hourly_avg,Noise.influent_mgd_hourly_avg, col = treatment)) +
+  geom_point()
+
+## effluent_mgd vs noise added effluent_mgd
+df %>% 
+  ggplot(aes(effluent_mgd,Noise.effluent_mgd, col = treatment)) +
+  geom_point()
+
+## primary_sludge_gmp_hourly_avg vs noise added primary_sludge_gmp_hourly_avg
+df %>% 
+  ggplot(aes(primary_sludge_gmp_hourly_avg,Noise.primary_sludge_gmp_hourly_avg, col = treatment)) +
+  geom_point()
+
+
+######### linear regression test of each synthetic data
+# without covariate mols of metal 
+obj0<- lm(Noise.mols_of_metal_kmol_day ~ treatment, data = df)
 summary( obj0)
 
-# with covariate shows  group one is better
-obj1<- lm( mols_of_metal_kmol_day.1 ~ treatment + mols_of_metal_kmol_day , data = df)
+# with covariate mols of metal
+obj1<- lm( Noise.mols_of_metal_kmol_day ~ treatment + mols_of_metal_kmol_day , data = df)
 summary( obj1)
+
+###########
+# without covariate influent_mgd_hourly_avg
+obj0<- lm(Noise.influent_mgd_hourly_avg ~ treatment, data = df)
+summary( obj0)
+
+# with covariate influent_mgd_hourly_avg
+obj1<- lm( Noise.influent_mgd_hourly_avg ~ treatment + influent_mgd_hourly_avg , data = df)
+summary( obj1)
+
+############
+# without covariate effluent_mgd
+obj0<- lm(Noise.effluent_mgd ~ treatment, data = df)
+summary( obj0)
+
+# with covariate effluent_mgd
+obj1<- lm( Noise.effluent_mgd ~ treatment + effluent_mgd , data = df)
+summary( obj1)
+
+###########
+# without covariate primary_sludge_gmp_hourly_avg
+obj0<- lm(Noise.primary_sludge_gmp_hourly_avg ~ treatment, data = df)
+summary( obj0)
+
+# with covariate primary_sludge_gmp_hourly_avg
+obj1<- lm( Noise.primary_sludge_gmp_hourly_avg ~ treatment + primary_sludge_gmp_hourly_avg , data = df)
+summary( obj1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
