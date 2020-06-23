@@ -54,6 +54,23 @@ partial_ancova1$coagulant <- as.character(partial_ancova1$coagulant)
 em1 <- emmeans_test(partial_ancova1, phos_change ~ coagulant , covariate = influent_mgd_hourly_avg,
                     p.adjust.method = "bonferroni")
 
+# Shapiro Wilk test for normality of residuals
+parial_model1 <- lm(phos_change ~ influent_mgd_hourly_avg + coagulant, data = partial_ancova1)
+partial_model1.metrics <- augment(parial_model1) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+
+shapiro_test(partial_model1.metrics$.resid) # if not significant assumption is maintained
+
+
+# Leven's test for homogeneity of variances
+partial_model1.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+
+
+# outliers 
+partial_model1.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
+
 knitr::kable( em1, digits = 3, format = "pandoc", caption = "Influent ANOVA Table" )
 
 
@@ -89,6 +106,21 @@ get_anova_table(partial_test2)
 partial_ancova2$coagulant <- as.character(partial_ancova2$coagulant)
 em2 <- emmeans_test(partial_ancova2, phos_change ~ coagulant , covariate = mols_of_metal_kmol_day,
                     p.adjust.method = "bonferroni")
+
+
+parial_model2 <- lm(phos_change ~ mols_of_metal_kmol_day + coagulant, data = partial_ancova2)
+partial_model2.metrics <- augment(parial_model2) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+
+shapiro_test(partial_model2.metrics$.resid) # if not significant assumption is maintained
+
+
+partial_model2.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+
+
+partial_model2.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
 
 
 knitr::kable( em2, digits = 3, format = "pandoc", caption = "Mols of Metal ANOVA Table" )
@@ -128,6 +160,22 @@ em3 <- emmeans_test(partial_ancova3, phos_change ~ coagulant , covariate = prima
                     p.adjust.method = "bonferroni")
 
 
+parial_model3 <- lm(phos_change ~ primary_sludge_gmp_hourly_avg + coagulant, data = partial_ancova3)
+partial_model3.metrics <- augment(parial_model3) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+
+
+shapiro_test(partial_model3.metrics$.resid) # if not significant assumption is maintained
+
+
+partial_model3.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+
+
+partial_model3.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
+
+
 knitr::kable( em3, digits = 3, format = "pandoc", caption = "Primary Sludge ANOVA Table" )
 
 
@@ -163,6 +211,22 @@ get_anova_table(partial_test4)
 partial_ancova4$coagulant <- as.character(partial_ancova4$coagulant)
 em4 <- emmeans_test(partial_ancova4, phos_change ~ coagulant , covariate = effluent_mgd,
                     p.adjust.method = "bonferroni")
+
+
+parial_model4 <- lm(phos_change ~ effluent_mgd + coagulant, data = partial_ancova4)
+partial_model4.metrics <- augment(parial_model4) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+
+
+shapiro_test(partial_model4.metrics$.resid) # if not significant assumption is maintained
+
+
+partial_model4.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+
+
+partial_model4.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
 
 
 knitr::kable( em4, digits = 3, format = "pandoc", caption = "Effluent ANOVA Table" )
