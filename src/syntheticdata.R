@@ -7,7 +7,7 @@ library(ggplot2)
 load("../data/final-data.rda")
 load("../data/boulderMoWater.rda")
 
-
+#### this set the treatment between Ferric and Alum which Ferric replace with 0 and Alum with 1
 x1 <- c(rep(1,72))
 x1[full_ancova$coagulant == "Ferric"] <- 0
 
@@ -22,9 +22,9 @@ x2 <- full_ancova %>% select(mols_of_metal_kmol_day,
 #adding noises
 y<-  5  - x1 + x2*.1 + .2* rnorm(72)
 
-
+## data frame 
 df <- data.frame( Noise = y, x2, treatment=as.factor( x1))
-
+view(df)
 
 #### plot of the data with two groups
 
@@ -49,7 +49,7 @@ df %>%
   geom_point()
 
 
-######### linear regression test of each synthetic data
+######### linear regression test of each synthetic data variable
 # without covariate mols of metal 
 obj0<- lm(Noise.mols_of_metal_kmol_day ~ treatment, data = df)
 summary( obj0)
