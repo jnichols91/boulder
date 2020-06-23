@@ -75,10 +75,10 @@ knitr::kable( em1, digits = 3, format = "pandoc", caption = "Influent ANOVA Tabl
 
 
 #### Mols of metal Covariate ANCOVA Analysis ####
-full_ancova2 <- full_ancova %>% select(coagulant,phos_change,mols_of_metal_kmol_day)
+full_ancova2 <- full_ancova %>% select(coagulant, phos_change, mols_of_metal_kmol_day)
 
 
-plot(full_ancova2$mols_ofmetal_kmol_day, full_ancova2$phos_change)
+plot(full_ancova2$mols_of_metal_kmol_day, full_ancova2$phos_change)
 
 
 ggplot( full_ancova2, aes(mols_of_metal_kmol_day, phos_change, color = coagulant) ) +
@@ -104,25 +104,24 @@ get_anova_table(full_test2)
 
 
 full_ancova2$coagulant <- as.character(full_ancova2$coagulant)
-em2 <- emmeans_test(full_ancova2, phos_change ~ coagulant , covariate = d,
+em2 <- emmeans_test(full_ancova2, phos_change ~ coagulant , covariate = mols_of_metal_kmol_day,,
                     p.adjust.method = "bonferroni")
 
 
-model2 <- lm(phos_change ~ influent_mgd_hourly_avg + coagulant, data = full_ancova1)
-model1.metrics <- augment(model1) %>%
+model2 <- lm(phos_change ~ mols_of_metal_kmol_day + coagulant, data = full_ancova2)
+model2.metrics <- augment(model2) %>%
   select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
 
-shapiro_test(model1.metrics$.resid) # if not significant assumption is maintained
+shapiro_test(model2.metrics$.resid) # if not significant assumption is maintained
 
 
-# Leven's test for homogeneity of variances
-model1.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+model2.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
 
 
-# outliers 
-model1.metrics %>% 
+model2.metrics %>% 
   filter(abs(.std.resid) > 3) %>%
   as.data.frame()
+
 
 knitr::kable( em2, digits = 5, format = "pandoc", caption = "Mols of Metal ANOVA Table" )
 
@@ -160,6 +159,20 @@ full_ancova3$coagulant <- as.character(full_ancova3$coagulant)
 em3 <- emmeans_test(full_ancova3, phos_change ~ coagulant , covariate = primary_sludge_gmp_hourly_avg,
                     p.adjust.method = "bonferroni")
 
+model3 <- lm(phos_change ~ primary_sludge_gmp_hourly_avg + coagulant, data = full_ancova3)
+model3.metrics <- augment(model3) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+
+shapiro_test(model3.metrics$.resid) # if not significant assumption is maintained
+
+
+model3.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+
+
+model3.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
+
 
 knitr::kable( em3, digits = 3, format = "pandoc", caption = "Primary Sludge ANOVA Table" )
 
@@ -195,6 +208,21 @@ get_anova_table(full_test4)
 full_ancova4$coagulant <- as.character(full_ancova4$coagulant)
 em4 <- emmeans_test(full_ancova4, phos_change ~ coagulant , covariate = effluent_mgd,
                     p.adjust.method = "bonferroni")
+
+
+model4 <- lm(phos_change ~ effluent_mgd + coagulant, data = full_ancova4)
+model4.metrics <- augment(model4) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+
+shapiro_test(model4.metrics$.resid) # if not significant assumption is maintained
+
+
+model4.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+
+
+model4.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
 
 
 knitr::kable(em4, digits = 3, format = "pandoc", caption = "Effluent ANOVA Table" )
