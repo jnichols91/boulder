@@ -29,7 +29,7 @@ num.features <- length( names(X.ind.alum) ) - 1
 
 # lasso method
 set.seed(1)
-k = 3
+k = 4
 grid = 10^seq(-2, 8, length=100)
 folds = sample(1:k, nrow(X.ind.alum), replace=TRUE)
 cv.errors = matrix(NA, k, 100, dimnames=list(NULL, c(1:100)))
