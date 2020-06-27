@@ -40,9 +40,9 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-#knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table,dvipsnames]{xcolor}', x, fixed = TRUE)})
+
 knitr::opts_chunk$set(echo = FALSE,comment = NA, warning = FALSE, message = FALSE, cache = FALSE, fig.height = 3)
-setwd("~/Desktop/MoWater/boulder/src")
+#setwd("~/Desktop/MoWater/boulder/src")
 rm( list = ls() )
 
 library(tidyverse)
@@ -56,10 +56,12 @@ library(RColorBrewer)
 
 # make sure src is the current working directory
 
-load("../data/final-data.rda")
-load("../data/boulderMoWater.rda")
+load("final-data.rda")
+load("boulderMoWater.rda")
 theme_set(theme_bw())
 theme_update(panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+
 ```
 
 \begin{titlepage}
@@ -108,23 +110,26 @@ The following plots provide visuals for the effluent OP. They are split up by fe
 
 ```{r}
   alumphos <- phosfax_10m %>% # phosfax only alum coagulant every 10 minutes 
-    filter(date >= ymd("2019-10-22")) %>%
-    filter(date <= ymd("2019-12-15"))
+    filter(date >= ymd("2019-10-24")) %>%
+    filter(date <= ymd("2019-11-05"))
 
   rects1 <- data.frame(xstart = as.POSIXct('2019-11-06 15:00:00'), 
                     xend = as.POSIXct('2019-12-01 00:00:00'))
 ####### thursday plot 1
+  png(filename = "../plots/alum_phos_boxplot.png")
   p2 <- alumphos %>% ggplot() + 
     geom_point(aes(date, op_conc_mg_p_l), size=1.25) + 
     labs(title = "Alum Effluent OP 10-minute Intervals",
          x = "Date",
          y = "Ortho-phosphate (mg/L)") + 
-    geom_rect(data = rects1, aes(xmin = xstart, xmax = xend, 
-                                ymin = -Inf, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
     theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 8))
   grid.arrange(p1, p2, ncol = 2)
+  
+##### boxplot 
+  alumphos %>% ggplot(aes(x = as.factor(hour(date)), y = op_conc_mg_p_l )) +
+    geom_boxplot()
 ```
 \vfill
 ```{r}
@@ -140,25 +145,30 @@ The following plots provide visuals for the effluent OP. They are split up by fe
 
 ```{r}
   ferrphos <- phosfax_10m %>%
-    filter(date >= ymd("2019-08-15")) %>%
-    filter(date <= ymd("2019-09-07"))
+    filter(date >= ymd("2019-08-16")) %>%
+    filter(date <= ymd("2019-08-29"))
   
   rects2 <- data.frame(xstart = as.POSIXct('2019-08-30 15:00:00'), 
                        xend = as.POSIXct('2019-09-02 10:00:00'))
   
   #### thursday plot 2
+  
   p2 <- ferrphos %>% ggplot() + 
     geom_point(aes(date, op_conc_mg_p_l), size=1.25) + 
     labs(title = "Ferric Effluent OP 10-minute Intervals",
          x = "Date",
          y = "Ortho-phosphate (mg/L)") + 
-    geom_rect(data = rects2, aes(xmin = xstart, xmax = xend, 
-                                ymin = -Inf, ymax = Inf),fill = "red",col = "red", alpha = 0.1) + 
     theme(plot.title = element_text(face="bold", size = 9, hjust = 0.5),
           axis.text = element_text(size = 6),
           axis.title = element_text(size = 8))
   
   grid.arrange(p1, p2, ncol = 2)
+  
+  #### boxplot by hour
+   png(filename = "../plots/ferr_phos_boxplot.png")
+  ferrphos %>% ggplot(aes(x = as.factor(hour(date)), y = op_conc_mg_p_l )) +
+    geom_boxplot()
+  dev.off()
 ```
 
 
@@ -230,7 +240,7 @@ The following plots provide visuals for the effluent OP. They are split up by fe
   ferr_data <- ferr_data %>% mutate(hour = hour(date))
   alum_data <- alum_data %>% mutate(hour = hour(date))
   
-  alum_melt1 <- melt(alum_data[,c(8,14)], id.vars = "hour")
+  alum_melt1 <- melt(alum_data[,c(14,15)], id.vars = "hour")
   alum_melt2 <- melt(alum_data[,c(13,14)], id.vars = "hour")
   alum_melt3 <- melt(alum_data[,c(9:10,14)], id.vars = "hour")
   alum_melt4 <- melt(alum_data[,c(6,11,14)], id.vars = "hour")
@@ -248,12 +258,10 @@ The following plots provide visuals for the effluent OP. They are split up by fe
 ```
 
 ```{r, fig.height = 10}
+
   ggplot(alum_melt1) +
-    geom_boxplot(aes(y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
-    facet_wrap(vars(hour), labeller = labeller(hour = hours)) + 
-    theme(axis.title.x = element_blank(), 
-          axis.text.x = element_blank(), 
-          axis.ticks.x = element_blank(),
+    geom_boxplot(aes(x = as.character(hour),y=value, fill=variable), outlier.size = 0.5, outlier.color = "red") + 
+    theme(
           legend.title = element_text(size = 9),
           legend.text = element_text(size = 9),
           plot.title = element_text(face="bold", size = 9, hjust = 0.5),

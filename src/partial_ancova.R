@@ -106,7 +106,7 @@ get_anova_table(partial_test2)
 partial_ancova2$coagulant <- as.character(partial_ancova2$coagulant)
 em2 <- emmeans_test(partial_ancova2, phos_change ~ coagulant , covariate = mols_of_metal_kmol_day,
                     p.adjust.method = "bonferroni")
-
+em2
 
 parial_model2 <- lm(phos_change ~ mols_of_metal_kmol_day + coagulant, data = partial_ancova2)
 partial_model2.metrics <- augment(parial_model2) %>%

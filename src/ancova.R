@@ -24,10 +24,12 @@ pairs(full_ancova)
 #### Influent Covariate ANCOVA Analysis ####
 full_ancova1 <- full_ancova %>% select(coagulant, phos_change, influent_mgd_hourly_avg)
 
+
 # shows the 'linear' relationship between the outcome variable and covarient
 plot(full_ancova1$influent_mgd_hourly_avg, full_ancova1$phos_change)
 
 # plot the points and linear fit by coagulant; test for linearity with covariate
+png(file = "~/Desktop/boulder/plots/homogenity_graphs.png")
 ggplot( full_ancova1, aes(influent_mgd_hourly_avg, phos_change, color = coagulant) ) +
   geom_point( aes(shape = coagulant), size = 2, alpha = .75 ) +
   geom_smooth( method='lm', se = TRUE ) +
@@ -44,7 +46,7 @@ ggplot( full_ancova1, aes(influent_mgd_hourly_avg, phos_change, color = coagulan
        title = "Influent Vs Change in Phosphorus", 
        color = "Coagulant")  +
   guides(shape = FALSE)
-
+dev.off()
 # test for homogeneity; compares the behavior (slope) with the addition of covariate
 full_test1 <- anova_test(phos_change ~ influent_mgd_hourly_avg * coagulant, data = full_ancova1)
 get_anova_table(full_test1)
@@ -80,7 +82,7 @@ full_ancova2 <- full_ancova %>% select(coagulant, phos_change, mols_of_metal_kmo
 
 plot(full_ancova2$mols_of_metal_kmol_day, full_ancova2$phos_change)
 
-
+png(file = "~/Desktop/boulder/plots/homogenity_graphs.png")
 ggplot( full_ancova2, aes(mols_of_metal_kmol_day, phos_change, color = coagulant) ) +
   geom_point( aes(shape = coagulant), size = 2, alpha = .75 ) +
   geom_smooth( method='lm', se = TRUE ) +
@@ -97,14 +99,14 @@ ggplot( full_ancova2, aes(mols_of_metal_kmol_day, phos_change, color = coagulant
        title = "Mols of Metal Vs Change in Phosphorus", 
        color = "Coagulant")  +
   guides(shape = FALSE)
-
+dev.off()
 
 full_test2 <- anova_test(phos_change ~ mols_of_metal_kmol_day * coagulant, data = full_ancova2)
 get_anova_table(full_test2)
 
 
 full_ancova2$coagulant <- as.character(full_ancova2$coagulant)
-em2 <- emmeans_test(full_ancova2, phos_change ~ coagulant , covariate = mols_of_metal_kmol_day,,
+em2 <- emmeans_test(full_ancova2, phos_change ~ coagulant , covariate = mols_of_metal_kmol_day,
                     p.adjust.method = "bonferroni")
 
 
@@ -226,6 +228,68 @@ model4.metrics %>%
 
 
 knitr::kable(em4, digits = 3, format = "pandoc", caption = "Effluent ANOVA Table" )
+
+######################## Full ancova 5 with all 5 covariates
+full_ancova5 <- full_ancova %>% select(coagulant, phos_change, effluent_mgd,
+                                       primary_sludge_gmp_hourly_avg,
+                                       influent_mgd_hourly_avg,
+                                       mols_of_metal_kmol_day)
+
+plot(full_ancova4$effluent_mgd, full_ancova4$phos_change)
+
+
+#ggplot( full_ancova, aes(effluent_mgd, phos_change, color = coagulant) ) +
+ # geom_point( aes(shape = coagulant), size = 2, alpha = .75 ) +
+  #geom_smooth( method='lm', se = TRUE ) +
+ # stat_regline_equation( aes( label = paste(..eq.label.., ..rr.label.., sep = '~~~') ) , size = 3 ) +
+  #scale_color_brewer(palette = "Dark2") + 
+  #theme( legend.position = "right",
+   #      axis.text = element_text(size = 12),
+   #      axis.title = element_text(size = 14),
+  #       legend.text = element_text(size = 12),
+  #       legend.title = element_text(size = 14),
+  #       plot.title = element_text( face="bold", size = 16, hjust = 0.5 ) ) +
+  #labs(x = "Effluent (mgd)",
+ #      y = "Change in Phosphorus (mg/L)",
+  #     title = "Effluent Vs Change in Phosphorus", 
+  #     color = "Coagulant")  +
+ # guides(shape = FALSE)
+
+
+full_test5 <- anova_test(phos_change ~ (effluent_mgd + 
+                                          primary_sludge_gmp_hourly_avg +
+                                        influent_mgd_hourly_avg +
+                                        mols_of_metal_kmol_day)* coagulant, data = full_ancova5)
+get_anova_table(full_test5)
+
+
+full_ancova5$coagulant <- as.character(full_ancova4$coagulant)
+em5 <- emmeans_test(full_ancova5, phos_change ~ coagulant , covariate = 
+                      c(effluent_mgd, 
+                      primary_sludge_gmp_hourly_avg,
+                      influent_mgd_hourly_avg,
+                      mols_of_metal_kmol_day)
+                    p.adjust.method = "bonferroni")
+
+
+model4 <- lm(phos_change ~ effluent_mgd + coagulant, data = full_ancova4)
+model4.metrics <- augment(model4) %>%
+  select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
+
+shapiro_test(model4.metrics$.resid) # if not significant assumption is maintained
+
+
+model4.metrics %>% levene_test(.resid ~ as.factor(coagulant)) # if not significant assumption is maintained
+
+
+model4.metrics %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
+
+
+knitr::kable(em4, digits = 3, format = "pandoc", caption = "Effluent ANOVA Table" )
+
+
 
 
 #### Saving plots ####
