@@ -36,6 +36,14 @@ set.seed(1)
 ridge.alum <- glmnet(x = x.alum, y = y.alum, alpha = 0)
 plot(ridge.alum, xvar = "lambda")
 
+x.ferric <- as.matrix(X.ind.ferric %>% select(-op_mg_p_l))
+y.ferric <- as.matrix(X.ind.ferric$op_mg_p_l)
+
+
+set.seed(1)
+ridge.ferric <- glmnet(x = x.ferric, y = y.ferric, alpha = 0)
+plot(ridge.ferric, xvar = "lambda")
+
 #### ----------------------------------- ####
 
 #### ---- Cross Fold Ridge Regression ---- ####
@@ -69,5 +77,24 @@ adlasso.alum.cv <- cv.glmnet(x = x.alum, y = y.alum,
                   keep = TRUE)
 plot(adlasso.alum.cv)
 
-best_adlass_coef <- coef(adlasso.alum.cv, s = adlasso.alum.cv$lambda.min)
+best_adlass_coef_alum <- coef(adlasso.alum.cv, s = adlasso.alum.cv$lambda.min)
+adlass_fitted <- predict(adlasso.alum.cv, x.alum, s = adlasso.alum.cv$lambda.min)
+
+
+adlasso.ferric.cv <- cv.glmnet(x = x.ferric, y = y.ferric,
+                             alpha = 1,
+                             penalty.factor = 1 / abs(as.numeric(best_ridge_coef)[-1]),
+                             type.measure = "mse",
+                             nfolds = 4,
+                             keep = TRUE)
+plot(adlasso.ferric.cv)
+
+best_adlass_coef_ferric <- coef(adlasso.ferric.cv, s = adlasso.ferric.cv$lambda.min)
+adlass_fitted <- predict(adlasso.ferric.cv, x.ferric, s = adlasso.ferric.cv$lambda.min)
+
+
+#### ---------------------------------- #####
+
+
+
 

@@ -268,7 +268,7 @@ em5 <- emmeans_test(full_ancova5, phos_change ~ coagulant , covariate =
                       c(effluent_mgd, 
                       primary_sludge_gmp_hourly_avg,
                       influent_mgd_hourly_avg,
-                      mols_of_metal_kmol_day)
+                      mols_of_metal_kmol_day),
                     p.adjust.method = "bonferroni")
 
 
