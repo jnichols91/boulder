@@ -176,10 +176,15 @@ lasso_data <- lasso_data %>%
 partial_ancova <- full_ancova %>% 
   filter( date(date) > ymd("2019-08-18") ) %>% 
   filter( date(date) != ymd("2019-10-22") ) 
-  
+
+alum_data <- lasso_data %>% filter(coagulant == "Alum")
+ferr_data <- lasso_data %>% filter(coagulant == "Ferric")
+final_data <- lasso_data  
+
 #### Save as rda file #### 
 save(full_ancova, partial_ancova, file = "../data/final-data.rda")
 save(lasso_data, file = "../data/lasso.rda")
+save(alum_data, ferr_data, final_data, file = "../data/eda.rda")
 
 
 
